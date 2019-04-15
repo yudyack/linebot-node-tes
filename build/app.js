@@ -11,7 +11,7 @@ var config = {
 };
 app.get('/', function (req, res) {
     res.send('Hello World!');
-    console.log('dsaf');
+    console.log('dssdafadffdsdd');
 });
 app.post('/webhook', function (req, res) {
     res.json({});
