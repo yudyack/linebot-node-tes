@@ -14,13 +14,15 @@ import {
     WebhookEvent,
   } from "@line/bot-sdk";
 
+require('dotenv').config({path:"../"});
+
 // Create a new express application instance
 const app: express.Application = express();
 
 const config = {
-    channelAccessToken: 'bEImkADlymSLkToM46kzAuMWy+51h3PpV0OdOiNZBOme3FVGo92p5Iwcg2lROLBGcofN+07dX28Ot4i3Urzj27JQ+qk7WVhc6y9eLnMX1BkVXvhElz0oTRz5SdkxCqqGEXQjCcUJOA/0/YXVHeNLKQdB04t89/1O/w1cDnyilFU=',
-    channelSecret: '673d42703b9fd20209e1913b12dae6f6'
-  }
+    channelAccessToken: <string> process.env.CHANNEL_ACCESS_TOKEN,
+    channelSecret: <string> process.env.CHANNEL_SECRET
+}
 
 app.get('/', function (req, res) {
   res.send('Hello World!');
