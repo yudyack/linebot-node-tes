@@ -24,7 +24,7 @@ const config = {
 
 app.get('/', function (req, res) {
   res.send('Hello World!');
-  console.log('dsdasdasdaffdffssdafsdafadffdsdafsdd');
+  console.log('asdaffdffssdafsdafadffdsdafsdd');
 });
 
 app.post('/webhook', (req, res) => {
