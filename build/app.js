@@ -3,7 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // lib/app.ts
 var express = require("express");
 var bot_sdk_1 = require("@line/bot-sdk");
-require('dotenv').config({ path: "../" });
+var path = require("path");
+require('dotenv').config({ path: path.resolve(__dirname, "../.env") });
 // Create a new express application instance
 var app = express();
 var config = {

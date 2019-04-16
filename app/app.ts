@@ -14,8 +14,9 @@ import {
     WebhookEvent,
   } from "@line/bot-sdk";
 
-require('dotenv').config({path:"../"});
+import path = require('path');
 
+require('dotenv').config({path:path.resolve(__dirname,"../.env")});
 // Create a new express application instance
 const app: express.Application = express();
 
@@ -23,6 +24,7 @@ const config = {
     channelAccessToken: <string> process.env.CHANNEL_ACCESS_TOKEN,
     channelSecret: <string> process.env.CHANNEL_SECRET
 }
+
 
 app.get('/', function (req, res) {
   res.send('Hello World!');
