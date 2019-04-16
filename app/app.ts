@@ -32,9 +32,9 @@ app.get('/', function (req, res) {
 // })
 
 app.post('/webhook', middleware(config), (req, res) => {
-    req.body.events // webhook event objects
-    req.body.destination // user ID of the bot (optional)
-    console.log(req);
+    let obj = req.body.events // webhook event objects
+    let dest = req.body.destination // user ID of the bot (optional)
+    console.log(obj, dest);
 })
 
 app.listen(3000, function () {
