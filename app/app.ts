@@ -28,7 +28,7 @@ app.get('/', function (req, res) {
 });
 
 app.post('/webhook', (req, res) => {
-    res.json({})
+    res.json({'test': 'ssdafdas'})
 })
 
 app.post('/webhook', middleware(config), (req, res) => {
