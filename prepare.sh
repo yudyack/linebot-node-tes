@@ -4,9 +4,9 @@ npm install -g pm2
 npm install -g typescript
 
 
-## install nginx
+echo 'install nginx..'
 sudo apt update
 sudo apt install nginx
 
-## TODO load githooks
+echo 'load githooks..'
 cp hooks/* .git/hooks/
