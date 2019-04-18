@@ -14,9 +14,13 @@ import {
     WebhookEvent,
   } from "@line/bot-sdk";
 
-import path = require('path');
 
-require('dotenv').config({path:path.resolve(__dirname,"../.env")});
+import { loadData, loadEnv } from './util';
+
+loadEnv();
+const dataAll = loadData();
+console.log(dataAll);
+
 // Create a new express application instance
 const app: express.Application = express();
 
@@ -39,6 +43,9 @@ app.post('/webhook', middleware(config), (req, res) => {
     let obj = req.body.events // webhook event objects
     let dest = req.body.destination // user ID of the bot (optional)
     console.log(obj, dest);
+    let user_id = obj.source.userId;
+
+
 })
 
 app.listen(3000, function () {

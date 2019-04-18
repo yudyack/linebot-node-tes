@@ -3,8 +3,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // lib/app.ts
 var express = require("express");
 var bot_sdk_1 = require("@line/bot-sdk");
-var path = require("path");
-require('dotenv').config({ path: path.resolve(__dirname, "../.env") });
+var util_1 = require("./util");
+util_1.loadEnv();
+var dataAll = util_1.loadData();
+console.log(dataAll);
 // Create a new express application instance
 var app = express();
 var config = {
@@ -22,6 +24,7 @@ app.post('/webhook', bot_sdk_1.middleware(config), function (req, res) {
     var obj = req.body.events; // webhook event objects
     var dest = req.body.destination; // user ID of the bot (optional)
     console.log(obj, dest);
+    var user_id = obj.source.userId;
 });
 app.listen(3000, function () {
     console.log('Example app listening on port 3000!');
