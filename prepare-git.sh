@@ -1,5 +1,7 @@
 #!/bin/bash
 
+repo-url="https://github.com/yudyack/linebot-node-tes.git"
+
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # echo "$DIR"
 # pwd
@@ -7,6 +9,11 @@ cd $DIR
 #get repo name as 
 repo=${DIR##*/}
 echo $repo
-# echo "load githooks.." \
-# && cp hooks/* "../../$repo.git/hooks/" \
-# && sudo chmod +x "../../$repo.git/hooks/*" \
+
+git clone --bare $repo-url ../../ \
+&& git clone 
+
+# assume bare gir exist
+echo "load githooks.." \
+&& cp hooks/* "../../$repo.git/hooks/" \
+&& sudo chmod +x "../../$repo.git/hooks/*" \
