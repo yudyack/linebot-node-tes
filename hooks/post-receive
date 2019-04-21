@@ -1,6 +1,6 @@
 #!bin/bash
 pwd
-git --work-tree=../opt --git-dir=dfdfdfdf
+git --work-tree=../opt --git-dir=dfdfdfdfdsf
 pwd
 
 #sh deploy.sh
