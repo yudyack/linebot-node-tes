@@ -2,8 +2,8 @@
 
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-# echo "$DIR"
-# pwd
+echo "$DIR"
+pwd
 cd $DIR
 
 # repo-url="https://github.com/yudyack/linebot-node-tes.git"
