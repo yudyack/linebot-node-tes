@@ -8,7 +8,7 @@
 
 echo "install.." \
 && npm install \
-&& echo "build.." \
+&& echo "build..." \
 && npm run tsc \
 && echo "run" \
 && pm2 delete 'linebot' 
