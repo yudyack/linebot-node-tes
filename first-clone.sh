@@ -16,10 +16,9 @@ echo $repourl
 if ! [ -d ~/deploy-folder ]  # for file "if [-f /home/rama/file]" 
 then 
     mkdir -p ~/deploy-folder/live
-else 
-    cd deploy-folder \
-    && git clone --bare $repourl \
-    && echo "clone working dir" \
-    && git clone "./$gitrepo" "./live/$repo" 
 fi
 
+cd deploy-folder \
+&& git clone --bare $repourl \
+&& echo "clone working dir" \
+&& git clone "./$gitrepo" "./live/$repo" 
