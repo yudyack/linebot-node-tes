@@ -1,7 +1,7 @@
 #!/bin/bash
-echo 'checkout..' \
-&& git checkout -f master \
-&& echo "install.." \
+# echo 'checkout..' \
+# && git checkout -f master \
+echo "install.." \
 && npm install \
 && echo "build.." \
 && npm run tsc \
