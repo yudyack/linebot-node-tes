@@ -1,6 +1,8 @@
-#!bin/bash
-pwd
-git --work-tree=../opt --git-dir=dfdfdfdfdsfdffd
-pwd
+#!/bin/bash
+
+# get repo name
+repo=${PWD##*/}
+
+git --git-dir=. --work-tree="../live/$repo" checkout master -f
 
 #sh deploy.sh
