@@ -6,7 +6,7 @@ echo "$DIR"
 pwd
 cd $DIR
 
-repo-url= cat 'https://github.com/yudyack/linebot-node-tes.git'
+repo-url= ${echo 'https://github.com/yudyack/linebot-node-tes.git'}
 #get repo name as 
 repo=${DIR##*/}
 echo $repo
