@@ -16,6 +16,7 @@ echo $repo
 # && git clone 
 
 # assume bare gir exist
+pwd
 echo "load githooks.." \
 && cp hooks/* "../../$repo.git/hooks/" \
 && sudo chmod a+x "../../$repo.git/hooks/*" \
