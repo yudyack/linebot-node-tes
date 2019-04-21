@@ -2,7 +2,7 @@
 
 # get repo name
 repo=${PWD##*/}
-pwd
-git --git-dir=. --work-tree="../live/$repo" checkout master -f
+cd '../live/$repo'
+git --git-dir=../ --work-tree="../live/$repo" checkout master -f
 
 #sh deploy.sh
