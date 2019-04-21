@@ -2,8 +2,8 @@
 
 # get repo name
 gitrepo=${PWD##*/}
-repo=${gitrepo#.*}
+repo=${gitrepo%.*}
 cd "../live/$repo"
-git --git-dir="../$repo.git" --work-tree="../live/$repo" checkout master -f
+git --git-dir="../$gitrepo" --work-tree="../live/$repo" checkout master -f
 
 #sh deploy.sh
