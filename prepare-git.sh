@@ -19,6 +19,6 @@ echo $repo
 pwd
 echo "load githooks.." \
 && cp hooks/* "../../$repo.git/hooks/" \
-&& sudo chmod a+x "../../$repo.git/hooks/*" \
+&& sudo chmod a+x "../../$repo.git/hooks/"* \
 
 
