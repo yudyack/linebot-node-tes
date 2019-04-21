@@ -21,4 +21,8 @@ fi
 cd deploy-folder \
 && git clone --bare $repourl \
 && echo "clone working dir" \
-&& git clone "./$gitrepo" "./live/$repo" 
+&& git clone "./$gitrepo" "./live/$repo" \
+&& cd "./live/$repo" \
+&& sh prepare-git.sh \
+&& sh prepare.sh
+
