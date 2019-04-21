@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 # pwd
 
 repourl='https://github.com/yudyack/linebot-node-tes.git';
