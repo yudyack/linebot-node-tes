@@ -6,7 +6,7 @@ echo "$DIR"
 pwd
 cd $DIR
 
-repo-url="https://github.com/yudyack/linebot-node-tes.git"
+repo-url='https://github.com/yudyack/linebot-node-tes.git'
 #get repo name as 
 repo=${DIR##*/}
 echo $repo
@@ -17,4 +17,4 @@ echo $repo
 # assume bare gir exist
 echo "load githooks.." \
 && cp hooks/* "../../$repo.git/hooks/" \
-&& sudo chmod +x "../../$repo.git/hooks/*" \
+&& sudo chmod a+x "../../$repo.git/hooks/*" \
