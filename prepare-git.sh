@@ -4,7 +4,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # echo "$DIR"
 # pwd
 cd $DIR
-#get repo name
+#get repo name as 
 repo=${DIR##*/}
 echo $repo
 # echo "load githooks.." \
