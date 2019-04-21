@@ -1,16 +1,15 @@
 #!/bin/bash
 
-
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+directory="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 echo "test"
-echo "$DIR"
+echo "$directory"
 echo 'done dir'
 pwd
-cd $DIR
+cd $directory
 
-repo-url= ${echo 'https://github.com/yudyack/linebot-node-tes.git'}
+repo-url=${echo 'https://github.com/yudyack/linebot-node-tes.git'}
 #get repo name as 
-repo=${DIR##*/}
+repo=${directory##*/}
 echo $repo
 
 # git clone --bare $repo-url ../../ \
