@@ -1,7 +1,10 @@
 #!/bin/bash
 # echo 'checkout..' \
 # && git checkout -f master \
-nvm --version
+. ~/.nvm/nvm.sh
+. ~/.profile
+. ~/.bashrc
+. $(brew --prefix nvm)/nvm.sh 
 
 echo "install.." \
 && npm install \
