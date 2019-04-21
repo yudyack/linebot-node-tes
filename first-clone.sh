@@ -23,6 +23,6 @@ cd deploy-folder \
 && echo "clone working dir" \
 && git clone "./$gitrepo" "./live/$repo" \
 && cd "./live/$repo" \
-&& sh prepare-git.sh \
-&& sh prepare.sh
+&& bash prepare-git.sh \
+&& bash prepare.sh
 
