@@ -5,7 +5,7 @@ repourl='https://github.com/yudyack/linebot-node-tes.git';
 
 gitrepo=${repourl##*/};
 repo=${gitrepo%.*};
-
+ 
 # if [ $# -eq 0 ]
 # then
 #     repourl=$1
