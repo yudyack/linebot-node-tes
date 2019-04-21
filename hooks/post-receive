@@ -4,6 +4,6 @@
 gitrepo=${PWD##*/}
 repo=${gitrepo%.*}
 cd "../live/$repo"
-git --git-dir="../../$gitrepo" --work-tree="../live/$repo" checkout master -f
+git --git-dir="../../$gitrepo" --work-tree="." checkout master -f
 
 #sh deploy.sh
