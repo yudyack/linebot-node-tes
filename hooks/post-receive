@@ -1,8 +1,9 @@
 #!/bin/bash
 
 # get repo name
-repo=${PWD##*/}
-cd '../live/$repo'
-git --git-dir='../$repo' --work-tree="../live/$repo" checkout master -f
+gitrepo=${PWD##*/}
+repo=${gitrepo.*}
+cd "../live/$repo"
+git --git-dir="../$repo.git" --work-tree="../live/$repo" checkout master -f
 
-#sh deploy.sh sdfdf
+#sh deploy.sh
