@@ -14,6 +14,8 @@ echo "install node" \
 && sudo ufw allow ssh \
 && sudo ufw allow 'Nginx Full' \
 
-# echo 'load githooks..'
-# cp hooks/* .git/hooks/
-# sudo chmod +x .git/hooks/*
+# TODO
+# configure nginx
+# configure certbot
+# configure  
+
