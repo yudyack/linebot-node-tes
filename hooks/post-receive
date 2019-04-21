@@ -5,4 +5,4 @@ repo=${PWD##*/}
 cd '../live/$repo'
 git --git-dir='../$repo' --work-tree="../live/$repo" checkout master -f
 
-#sh deploy.sh sdf
+#sh deploy.sh sdfdf
