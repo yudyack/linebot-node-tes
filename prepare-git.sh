@@ -6,10 +6,10 @@ echo "$DIR"
 pwd
 cd $DIR
 
-# repo-url="https://github.com/yudyack/linebot-node-tes.git"
-# #get repo name as 
-# repo=${DIR##*/}
-# echo $repo
+repo-url="https://github.com/yudyack/linebot-node-tes.git"
+#get repo name as 
+repo=${DIR##*/}
+echo $repo
 
 # git clone --bare $repo-url ../../ \
 # && git clone 
