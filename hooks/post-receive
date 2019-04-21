@@ -3,6 +3,6 @@
 # get repo name
 repo=${PWD##*/}
 cd '../live/$repo'
-git --git-dir=../ --work-tree="../live/$repo" checkout master -f
+git --git-dir='../$repo' --work-tree="../live/$repo" checkout master -f
 
 #sh deploy.sh
