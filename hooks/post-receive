@@ -1,2 +1,6 @@
+#!bin/sh
+pwd
+git --work-tree=../opt --git-dir=
+pwd
 
-sh deploy.sh
+#sh deploy.sh

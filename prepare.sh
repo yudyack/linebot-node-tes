@@ -10,3 +10,4 @@ sudo apt install nginx
 
 echo 'load githooks..'
 cp hooks/* .git/hooks/
+sudo chmod +x .git/hooks/*
