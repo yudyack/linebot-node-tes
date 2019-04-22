@@ -4,7 +4,7 @@
 . ~/.nvm/nvm.sh
 . ~/.profile
 . ~/.bashrc
-. $(brew --prefix nvm)/nvm.sh 
+# . $(brew --prefix nvm)/nvm.sh 
 
 echo "install.." \
 && npm install \
