@@ -26,6 +26,6 @@ app.post('/webhook', bot_sdk_1.middleware(config), function (req, res) {
     console.log(obj, dest);
     var user_id = obj.source.userId;
 });
-app.listen(3000, function () {
-    console.log('Example app listening on port 3000!');
+app.listen(process.env.PORT, function () {
+    console.log("Example app listening on port " + process.env.PORT + "!");
 });
