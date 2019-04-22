@@ -42,8 +42,8 @@ app.get('/', function (req, res) {
 app.post('/webhook', middleware(config), (req, res) => {
     let obj = req.body.events // webhook event objects
     let dest = req.body.destination // user ID of the bot (optional)
-    console.log(obj, dest);
-    let user_id = obj.source.userId;
+    console.log(obj);
+    // let user_id = obj.source.userId;
 
 
 })
