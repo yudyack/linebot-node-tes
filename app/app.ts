@@ -39,11 +39,37 @@ app.get('/', function (req, res) {
 //     res.json({'test': 'ssdafdas'})
 // })
 
+interface LineSource {
+  userId: String;
+  groupId: String;
+  'type': String;
+}
+
+interface LineMessage {
+  'type': String;
+  id: String;
+  text: String;
+}
+
+interface LineEvents {
+  'type': String;
+  replyToken: String;
+  source: LineSource;
+  timestamp: String;
+  message: LineMessage;
+}
+
+function handleEvents() {
+
+}
+
 app.post('/webhook', middleware(config), (req, res) => {
-    let obj = req.body.events // webhook event objects
-    let dest = req.body.destination // user ID of the bot (optional)
-    console.log(obj);
-    // let user_id = obj.source.userId;
+
+  
+  let obj: Array<LineEvents> = req.body.events // webhook event objects
+  let dest = req.body.destination // user ID of the bot (optional)
+  console.log(dest);
+  let user_id = obj[0].source.userId;
 
 
 })
