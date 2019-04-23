@@ -51,7 +51,7 @@ app.get('/', function (req, res) {
   console.log('darimana?', req);
 });
 
-app.use('/webhook',proxy("https://hookb.in/kx6jPqe3VKTepeoxWEXL"));
+app.use('/webhook',proxy("https://servombak.free.beeceptor.com"));
 
 app.post('/webhook1', middleware(<MiddlewareConfig> config), (req, res) => {
 
