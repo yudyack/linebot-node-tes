@@ -35,6 +35,7 @@ import {
 
 } from "@line/bot-sdk";
 import request = require('request');
+import proxy = require('express-http-proxy');
 
 
 import { config, dataAll } from './util';
@@ -50,8 +51,11 @@ app.get('/', function (req, res) {
   console.log('darimana?', req);
 });
 
+app.use()
 
 app.post('/webhook', middleware(<MiddlewareConfig> config), (req, res) => {
+
+  
   let events: Array<WebhookEvent> = req.body.events // webhook event objects
   console.log("sending request");
 
