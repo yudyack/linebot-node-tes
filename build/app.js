@@ -4,27 +4,29 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var express = require("express");
 var bot_sdk_1 = require("@line/bot-sdk");
 var util_1 = require("./util");
-util_1.loadEnv();
-var dataAll = util_1.loadData();
-console.log(dataAll);
+var mapEvent_1 = require("./mapEvent");
 // Create a new express application instance
 var app = express();
-var config = {
-    channelAccessToken: process.env.CHANNEL_ACCESS_TOKEN,
-    channelSecret: process.env.CHANNEL_SECRET
-};
+console.log(util_1.dataAll);
+console.log(util_1.config);
 app.get('/', function (req, res) {
     res.send('Hello World!');
     console.log('asdaffdffssdafsdafadffdsdafsdd');
 });
-// app.post('/webhook', (req, res) => {
-//     res.json({'test': 'ssdafdas'})
-// })
-app.post('/webhook', bot_sdk_1.middleware(config), function (req, res) {
-    var obj = req.body.events; // webhook event objects
+app.post('/webhook', bot_sdk_1.middleware(util_1.config), function (req, res) {
+    var events = req.body.events; // webhook event objects
     var dest = req.body.destination; // user ID of the bot (optional)
-    console.log(obj, dest);
-    var user_id = obj.source.userId;
+    var user_id = events[0].source.userId;
+    if (req.body.destination) {
+        console.log("Destination User ID: " + req.body.destination);
+    }
+    // handle events separately
+    Promise.all(req.body.events.map(mapEvent_1.handleEvent))
+        .then(function () { return res.end(); })
+        .catch(function (err) {
+        console.error(err);
+        res.status(500).end();
+    });
 });
 app.listen(process.env.PORT, function () {
     console.log("Example app listening on port " + process.env.PORT + "!");

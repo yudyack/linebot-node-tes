@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var path = require("path");
 var fs = require("fs");
+loadEnv();
 function loadData() {
     var raw = fs.readFileSync(process.env.HOME_DIR + 'data.json');
     var dataAll = JSON.parse(raw.toString());
@@ -13,3 +14,8 @@ function loadEnv() {
     require('dotenv').config({ path: process.env.HOME_DIR + ".env" });
 }
 exports.loadEnv = loadEnv;
+exports.config = {
+    channelAccessToken: process.env.CHANNEL_ACCESS_TOKEN,
+    channelSecret: process.env.CHANNEL_SECRET
+};
+exports.dataAll = loadData();

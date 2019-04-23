@@ -1,78 +1,72 @@
 // lib/app.ts
 import express = require('express');
 import {
-    // main APIs
-    Client,
-    middleware,
-  
-    // exceptions
-    JSONParseError,
-    SignatureValidationFailed,
-  
-    // types
-    TemplateMessage,
-    WebhookEvent,
-  } from "@line/bot-sdk";
+  // main APIs
+  Client,
+  middleware,
+
+  // exceptions
+  JSONParseError,
+  SignatureValidationFailed,
+
+  // types
+  TemplateMessage,
+  WebhookEvent,
+
+  // webhook event objects
+  MessageEvent,
+  EventSource,
+  VideoEventMessage,
+
+  // message event objects
+  Message,
+  TemplateContent,
+  EventBase,
+  ReplyableEvent,
+  TextEventMessage,
+  ImageEventMessage,
+  AudioEventMessage,
+  LocationEventMessage,
+  StickerEventMessage,
+  MiddlewareConfig,
+  ClientConfig,
+  Config,
 
 
-import { loadData, loadEnv } from './util';
+} from "@line/bot-sdk";
 
-loadEnv();
-const dataAll = loadData();
-console.log(dataAll);
+
+import { config, dataAll } from './util';
+import { handleEvent } from './mapEvent';
 
 // Create a new express application instance
 const app: express.Application = express();
 
-const config = {
-    channelAccessToken: <string> process.env.CHANNEL_ACCESS_TOKEN,
-    channelSecret: <string> process.env.CHANNEL_SECRET
-}
-
-
+console.log(dataAll);
+console.log(config)
 app.get('/', function (req, res) {
   res.send('Hello World!');
   console.log('asdaffdffssdafsdafadffdsdafsdd');
 });
 
-// app.post('/webhook', (req, res) => {
-//     res.json({'test': 'ssdafdas'})
-// })
 
-interface LineSource {
-  userId: String;
-  groupId: String;
-  'type': String;
-}
-
-interface LineMessage {
-  'type': String;
-  id: String;
-  text: String;
-}
-
-interface LineEvents {
-  'type': String;
-  replyToken: String;
-  source: LineSource;
-  timestamp: String;
-  message: LineMessage;
-}
-
-function handleEvents() {
-
-}
-
-app.post('/webhook', middleware(config), (req, res) => {
-
-  
-  let obj: Array<LineEvents> = req.body.events // webhook event objects
+app.post('/webhook', middleware(<MiddlewareConfig> config), (req, res) => {
+  let events: Array<WebhookEvent> = req.body.events // webhook event objects
   let dest = req.body.destination // user ID of the bot (optional)
-  console.log(dest);
-  console.log(obj);
-  let user_id = obj[0].source.userId;
 
+  let user_id = events[0].source.userId;
 
+  if (req.body.destination) {
+    console.log("Destination User ID: " + req.body.destination);
+  }
+
+  // handle events separately
+  Promise.all(req.body.events.map(handleEvent))
+    .then(() => res.end())
+    .catch((err) => {
+      console.error(err);
+      res.status(500).end();
+  });
 })
 
 app.listen(process.env.PORT, function () {
