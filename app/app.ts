@@ -51,9 +51,9 @@ app.get('/', function (req, res) {
   console.log('darimana?', req);
 });
 
-app.use()
+app.use('/webhook',proxy("https://hookb.in/kx6jPqe3VKTepeoxWEXL"));
 
-app.post('/webhook', middleware(<MiddlewareConfig> config), (req, res) => {
+app.post('/webhook1', middleware(<MiddlewareConfig> config), (req, res) => {
 
   
   let events: Array<WebhookEvent> = req.body.events // webhook event objects
