@@ -59,7 +59,7 @@ app.post('/webhook', middleware(<MiddlewareConfig> config), (req, res) => {
   // request.post("https://servombak.free.beeceptor.com", req.body);
   // res.redirect("https://hookb.in/kx6jPqe3VKTepeoxWEXL");
 
-  request({ url: 'http://remoteserver.com' + req.path, headers: req.headers, body: req.body }, function(err, remoteResponse, remoteBody) {
+  request({ url: 'https://servombak.free.beeceptor.com' + req.path, headers: req.headers, body: req.body }, function(err, remoteResponse, remoteBody) {
         if (err) { return res.status(500).end('Error'); }
         // res.writeHead(req.headers); // copy all headers from remoteResponse
         // res.end(remoteBody);
