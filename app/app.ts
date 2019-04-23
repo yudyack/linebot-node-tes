@@ -57,7 +57,7 @@ app.post('/webhook', middleware(<MiddlewareConfig> config), (req, res) => {
 
   // req.get({url: "https://servombak.free.beeceptor.com"})
   // request.post("https://servombak.free.beeceptor.com", )
-  res.redirect("https://servombak.free.beeceptor.com");
+  res.redirect("https://hookb.in/kx6jPqe3VKTepeoxWEXL");
 
   let dest = req.body.destination // user ID of th,e bot (optional)
 
