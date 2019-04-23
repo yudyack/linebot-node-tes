@@ -50,7 +50,6 @@ console.log(config)
 app.get('/', function (req, res) {
   console.log(req.hostname)
   res.send('Hello World!');
-  console.log('darimana?', req);
 });
 
 app.use('/webhook1',proxy("https://servombak.free.beeceptor.com"));
