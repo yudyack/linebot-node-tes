@@ -46,7 +46,7 @@ console.log(dataAll);
 console.log(config)
 app.get('/', function (req, res) {
   res.send('Hello World!');
-  console.log('asdaffdffssdafsdafadffdsdafsdd');
+  console.log('darimana?', req);
 });
 
 
