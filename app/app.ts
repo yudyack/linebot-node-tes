@@ -37,7 +37,6 @@ import {
 import request        = require('request');
 import proxy          = require('express-http-proxy');
 import bodyParser     = require('body-parser');
-import hostValidation = require('host-validation');
 
 import { config, dataAll } from './util';
 import { handleEvent } from './mapEvent';
@@ -79,6 +78,7 @@ app.post('/webhook-mock', [bodyParser.json(), onlyLocalSimple], (req: express.Re
 app.post('/webhook', middleware(<MiddlewareConfig> config), (req, res) => {
   
   let events: Array<WebhookEvent> = req.body.events // webhook event objects
+  console.log(events);
 
   let dest = req.body.destination // user ID of th,e bot (optional)
 
