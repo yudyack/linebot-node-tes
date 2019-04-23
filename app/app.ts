@@ -48,7 +48,9 @@ const app: express.Application = express();
 console.log(dataAll);
 console.log(config)
 app.get('/', function (req, res) {
-  console.log(req.connection.remoteAddress)
+  // console.log(req.connection.remoteAddress)
+  let remote_address = req.header('remote_addr');
+  console.log(remote_address);
   res.send('Hello World!');
 });
 
