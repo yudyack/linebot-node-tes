@@ -7,6 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "tsc": "tsc",
     "dev": "ts-node-dev --respawn ./app/app.ts",
+    "predev": "ts-node-dev --respawn --transpileOnly ./app/app.ts",
     "prod": "tsc && node ./build/app.js"
   },
   "author": "",
