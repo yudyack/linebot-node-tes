@@ -17,6 +17,7 @@ function handleEvent(event) {
     if ((event).replyToken && (event).replyToken.match(/^(.)\1*$/)) {
         return console.log("Test hook recieved: " + JSON.stringify(event.message));
     }
+    console.log(event);
     switch (event.type) {
         case 'message':
             var message = event.message;

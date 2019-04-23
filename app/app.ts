@@ -36,7 +36,7 @@ import {
 } from "@line/bot-sdk";
 import request = require('request');
 import proxy = require('express-http-proxy');
-
+import bodyParser  = require('body-parser');
 
 import { config, dataAll } from './util';
 import { handleEvent } from './mapEvent';
@@ -51,20 +51,24 @@ app.get('/', function (req, res) {
   console.log('darimana?', req);
 });
 
-app.use('/webhook',proxy("https://servombak.free.beeceptor.com"));
+app.use('/webhook1',proxy("https://servombak.free.beeceptor.com"));
 
-app.post('/webhook1', middleware(<MiddlewareConfig> config), (req, res) => {
+app.post('/webhook-mock', bodyParser.json(), (req, res) => {
+  // handle events separately
+  // console.log(req);
+  // console.log(req.body);
+  // res.send(req.body);
+  Promise.all(req.body.events.map(handleEvent))
+    .then(() => res.end())
+    .catch((err) => {
+      console.error(err);
+      res.status(500).end();
+  });
+});
 
+app.post('/webhook', middleware(<MiddlewareConfig> config), (req, res) => {
   
   let events: Array<WebhookEvent> = req.body.events // webhook event objects
-  console.log("sending request");
-
-  // req.get({url: "https://servombak.free.beeceptor.com"})
-  // request.post("https://servombak.free.beeceptor.com", req.body);
-  res.redirect(302, "https://hookb.in/kx6jPqe3VKTepeoxWEXL");
-
-
-  console.log("sent?");
 
   let dest = req.body.destination // user ID of th,e bot (optional)
 
