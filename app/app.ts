@@ -34,9 +34,10 @@ import {
 
 
 } from "@line/bot-sdk";
-import request = require('request');
-import proxy = require('express-http-proxy');
-import bodyParser  = require('body-parser');
+import request        = require('request');
+import proxy          = require('express-http-proxy');
+import bodyParser     = require('body-parser');
+import hostValidation = require('host-validation');
 
 import { config, dataAll } from './util';
 import { handleEvent } from './mapEvent';
@@ -47,13 +48,15 @@ const app: express.Application = express();
 console.log(dataAll);
 console.log(config)
 app.get('/', function (req, res) {
+  console.log(req.hostname)
   res.send('Hello World!');
   console.log('darimana?', req);
 });
 
 app.use('/webhook1',proxy("https://servombak.free.beeceptor.com"));
 
-app.post('/webhook-mock', bodyParser.json(), (req, res) => {
+app.post('/webhook-mock', [bodyParser.json()], (req: express.Request, res: express.Response) => {
+  console.log(req.hostname)
   // handle events separately
   // console.log(req);
   // console.log(req.body);
