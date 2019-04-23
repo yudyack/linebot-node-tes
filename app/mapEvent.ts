@@ -33,7 +33,7 @@ export function handleEvent(event: any) {
   if ((event).replyToken && (event).replyToken.match(/^(.)\1*$/)) {
     return console.log("Test hook recieved: " + JSON.stringify(event.message));
   }
-
+  
   switch (event.type) {
     case 'message':
       const message = event.message;

@@ -34,6 +34,7 @@ import {
 
 
 } from "@line/bot-sdk";
+import request = require('request');
 
 
 import { config, dataAll } from './util';
@@ -52,8 +53,13 @@ app.get('/', function (req, res) {
 
 app.post('/webhook', middleware(<MiddlewareConfig> config), (req, res) => {
   let events: Array<WebhookEvent> = req.body.events // webhook event objects
-  console.log("request\n", req);
-  let dest = req.body.destination // user ID of the bot (optional)
+  // console.log("request\n", req);
+
+  // req.get({url: "https://servombak.free.beeceptor.com"})
+  // request.post("https://servombak.free.beeceptor.com", )
+  res.redirect("https://servombak.free.beeceptor.com");
+
+  let dest = req.body.destination // user ID of th,e bot (optional)
 
   let user_id = events[0].source.userId;
 
