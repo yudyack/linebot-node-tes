@@ -85,6 +85,7 @@ app.get('/', function (req, res) {
   // console.log(req.connection.remoteAddress)
   let remote_address = req.header('remote_addr') || req.connection.remoteAddress;
   console.log(req.hostname);
+  console.log(path.join(__dirname,'/public'));
   // res.send('Hello World!');
   res.sendFile(path.join(__dirname, "../public/tes.html"))
 });
