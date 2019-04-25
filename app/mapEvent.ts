@@ -83,7 +83,8 @@ export function handleEvent(event: any) {
 }
 
 function handleText(message:any, replyToken:any, source:any) {
-  const buttonsImageURL = `${hostname}/static/buttons/1040.jpg`;
+  // const buttonsImageURL = `${hostname}/static/buttons/1040.jpg`;
+  const buttonsImageURL = "https://i.imgur.com/3hrYrON.jpg"
   console.log(buttonsImageURL);
 
   switch (message.text) {
