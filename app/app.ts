@@ -62,7 +62,7 @@ app.post('/fixedPush',bodyParser.json(), (req, res) => {
   
   // not yet refactorized
   let client = new Client(<ClientConfig> config);
-  client.pushMessage("C1303fc45804b7df2f740ed5343900684", msg)
+  client.pushMessage("C1303fc45804b7df2f740ed5343900684", [msg])
     .then(() => res.end())
     .catch((err) => {
       console.error(err);
