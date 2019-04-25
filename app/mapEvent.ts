@@ -84,6 +84,7 @@ export function handleEvent(event: any) {
 
 function handleText(message:any, replyToken:any, source:any) {
   const buttonsImageURL = `${__dirname}/static/buttons/1040.jpg`;
+  console.log(buttonsImageURL);
 
   switch (message.text) {
     case 'profile':
