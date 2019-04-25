@@ -31,6 +31,7 @@ import {
   MiddlewareConfig,
   ClientConfig,
   Config,
+  TextMessage,
 
 
 } from "@line/bot-sdk";
@@ -62,7 +63,11 @@ app.post('/fixedPush',bodyParser.json(), (req, res) => {
   
   // not yet refactorized
   let client = new Client(<ClientConfig> config);
-  client.pushMessage("C1303fc45804b7df2f740ed5343900684", [msg])
+  let message: TextMessage = {
+    type: 'text',
+    text : msg
+  }
+  client.pushMessage("C1303fc45804b7df2f740ed5343900684", message)
     .then(() => res.end())
     .catch((err) => {
       console.error(err);
