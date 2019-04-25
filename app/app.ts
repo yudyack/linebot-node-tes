@@ -127,7 +127,7 @@ app.post('/webhook', middleware(<MiddlewareConfig> config), (req, res) => {
   });
 })
 
-app.use('/static', express.static(path.join(__dirname+'/public')));
+app.use('/static', express.static(path.join(__dirname,'/public')));
 
 app.listen(process.env.PORT, function () {
   console.log(`Example app listening on port ${process.env.PORT}!`);
