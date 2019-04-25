@@ -37,6 +37,7 @@ import {
 import request        = require('request');
 import proxy          = require('express-http-proxy');
 import bodyParser     = require('body-parser');
+import path           = require('path');
 
 import { config, dataAll } from './util';
 import { handleEvent } from './mapEvent';
@@ -52,12 +53,30 @@ function onlyLocalSimple(req: express.Request, res: express.Response, next: expr
   else res.send('no');
 }
 
+app.post('/fixedPush',bodyParser.json(), (req, res) => {
+  let msg = req.body.msg;
+  let pass = req.body.pass;
+
+  if (pass != "1123")
+    res.status(403).send();
+  
+  // not yet refactorized
+  let client = new Client(<ClientConfig> config);
+  client.pushMessage("C1303fc45804b7df2f740ed5343900684", msg)
+    .then(() => res.end())
+    .catch((err) => {
+      // console.error(err);
+      res.send(err);
+  })
+  
+})
+
 app.get('/', function (req, res) {
   // console.log(req.connection.remoteAddress)
   let remote_address = req.header('remote_addr') || req.connection.remoteAddress;
   console.log(remote_address);
   // res.send('Hello World!');
-  res.sendFile("./tes.html")
+  res.sendFile(path.join(__dirname, "../public/tes.html"))
 });
 
 app.use('/webhook1',proxy("https://servombak.free.beeceptor.com"));

@@ -20,7 +20,7 @@ const replyText = (token: string, texts: string | any[]) => {
       texts.map((text) => ({ type: 'text', text }))
     );
 };
-  
+
   
 function handleText(message: TextEventMessage, replyToken: string, source: string) : Promise<any> | null {return Promise.resolve()}
 function handleImage(message: ImageEventMessage, replyToken:string) : Promise<any> | null {return Promise.resolve()}

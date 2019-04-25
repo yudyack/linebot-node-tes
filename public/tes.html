@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My first Vue app</title>
+  <script src="https://unpkg.com/vue"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    {{ message }}
+    <input placeholder="msg" v-model="msg" type="text">
+    <input placeholder="password" v-model="pass" type="password">
+    <input id="submit" v-on:click="poste" type="button" value="asdf">
+    <span>{{msg}} </span>
+  </div>
+
+  
+  <script>
+    var app = new Vue({
+      el: '#app',
+      data: {
+        message: 'bot line tes!',
+        msg: 'a',
+        pass: ''
+      },
+      methods: {
+        poste() {
+          console.log(this.msg, this.pass)
+          axios.post('/fixedPush', {
+            msg: this.msg,
+            pass: this.pass
+          }).then(()=>{
+            console.log('sucess')
+          }).catch(()=>{
+            console.log('gagal')
+          })
+        }
+      }
+    })
+  </script>
+</body>
+</html>
