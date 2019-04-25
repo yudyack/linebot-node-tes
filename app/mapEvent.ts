@@ -9,7 +9,7 @@ import {
   StickerEventMessage,
   ClientConfig
 } from "@line/bot-sdk";
-import { config } from "./util";
+import { config, hostname } from "./util";
 
 const client = new Client(<ClientConfig>config);
 
@@ -83,7 +83,7 @@ export function handleEvent(event: any) {
 }
 
 function handleText(message:any, replyToken:any, source:any) {
-  const buttonsImageURL = `${__dirname}/static/buttons/1040.jpg`;
+  const buttonsImageURL = `${hostname}/buttons/1040.jpg`;
   console.log(buttonsImageURL);
 
   switch (message.text) {
