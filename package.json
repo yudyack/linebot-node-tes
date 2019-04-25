@@ -29,6 +29,7 @@
     "mongodb": "^3.2.3",
     "request": "^2.88.0",
     "ts-node-dev": "^1.0.0-pre.32",
-    "typescript": "^3.4.3"
+    "typescript": "^3.4.3",
+    "vue": "^2.6.10"
   }
 }
