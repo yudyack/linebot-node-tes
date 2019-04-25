@@ -65,8 +65,8 @@ app.post('/fixedPush',bodyParser.json(), (req, res) => {
   client.pushMessage("C1303fc45804b7df2f740ed5343900684", msg)
     .then(() => res.end())
     .catch((err) => {
-      // console.error(err);
-      res.send(err);
+      console.error(err);
+      res.status(500).end();
   })
   
 })
