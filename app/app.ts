@@ -86,7 +86,7 @@ app.get('/', function (req, res) {
 
 app.use('/webhook1',proxy("https://servombak.free.beeceptor.com"));
 
-app.post('/webhook-mock', [bodyParser.json(), onlyLocalSimple], (req: express.Request, res: express.Response) => {
+app.post('/webhook-mock', [bodyParser.json()], (req: express.Request, res: express.Response) => {
   console.log(req.hostname)
   // handle events separately
   // console.log(req);
