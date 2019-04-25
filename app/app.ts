@@ -57,7 +57,7 @@ app.get('/', function (req, res) {
   let remote_address = req.header('remote_addr') || req.connection.remoteAddress;
   console.log(remote_address);
   // res.send('Hello World!');
-  res.sendFile(".tes.html")
+  res.sendFile("./tes.html")
 });
 
 app.use('/webhook1',proxy("https://servombak.free.beeceptor.com"));
