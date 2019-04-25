@@ -56,6 +56,7 @@ function onlyLocalSimple(req: express.Request, res: express.Response, next: expr
 
 app.use(function sethost(req, res, next) {
   setHostname(req.hostname);
+  next();
 })
 
 app.post('/fixedPush',bodyParser.json(), (req, res) => {
