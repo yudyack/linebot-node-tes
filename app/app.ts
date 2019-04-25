@@ -52,11 +52,12 @@ function onlyLocalSimple(req: express.Request, res: express.Response, next: expr
   else res.send('no');
 }
 
-app.get('/',onlyLocalSimple, function (req, res) {
+app.get('/', function (req, res) {
   // console.log(req.connection.remoteAddress)
   let remote_address = req.header('remote_addr') || req.connection.remoteAddress;
   console.log(remote_address);
-  res.send('Hello World!');
+  // res.send('Hello World!');
+  res.sendFile(".tes.html")
 });
 
 app.use('/webhook1',proxy("https://servombak.free.beeceptor.com"));
