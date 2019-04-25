@@ -63,11 +63,11 @@ app.post('/fixedPush',bodyParser.json(), (req, res) => {
   
   // not yet refactorized
   let client = new Client(<ClientConfig> config);
-  let message: TextMessage = {
+  let message: TextMessage = { 
     type: 'text',
-    text : msg
+    text: msg
   }
-  client.pushMessage("C1303fc45804b7df2f740ed5343900684", message)
+  client.pushMessage("C1303fc45804b7df2f740ed5343900684", [message])
     .then(() => res.end())
     .catch((err) => {
       console.error(err);
