@@ -23,3 +23,9 @@ export const config: Config = {
 }
 
 export const dataAll = loadData();
+
+export var hostname: String = '';
+
+export function setHostname(host:String) {
+    hostname = host;
+}

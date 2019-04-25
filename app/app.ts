@@ -40,7 +40,7 @@ import proxy          = require('express-http-proxy');
 import bodyParser     = require('body-parser');
 import path           = require('path');
 
-import { config, dataAll } from './util';
+import { config, dataAll, hostname, setHostname } from './util';
 import { handleEvent } from './mapEvent';
 
 // Create a new express application instance
@@ -53,6 +53,10 @@ function onlyLocalSimple(req: express.Request, res: express.Response, next: expr
   if (remote_address == '::1') next();
   else res.send('no');
 }
+
+app.use(function sethost(req, res, next) {
+  setHostname(req.hostname);
+})
 
 app.post('/fixedPush',bodyParser.json(), (req, res) => {
   let msg = req.body.msg;
