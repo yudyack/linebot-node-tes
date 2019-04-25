@@ -79,14 +79,14 @@ app.post('/fixedPush',bodyParser.json(), (req, res) => {
 app.get('/', function (req, res) {
   // console.log(req.connection.remoteAddress)
   let remote_address = req.header('remote_addr') || req.connection.remoteAddress;
-  console.log(remote_address);
+  console.log(req.hostname);
   // res.send('Hello World!');
   res.sendFile(path.join(__dirname, "../public/tes.html"))
 });
 
 app.use('/webhook1',proxy("https://servombak.free.beeceptor.com"));
 
-app.post('/webhook-mock', [bodyParser.json()], (req: express.Request, res: express.Response) => {
+app.post('/webhook-mock', [bodyParser.json(), onlyLocalSimple], (req: express.Request, res: express.Response) => {
   console.log(req.hostname)
   // handle events separately
   // console.log(req);
