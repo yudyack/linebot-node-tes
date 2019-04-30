@@ -317,10 +317,12 @@ async function calc(pc: Pc): Promise<Pc> {
 async function mintaId(pc: Pc): Promise<Pc> {
   let msg = pc.dto.message.text.toLowerCase;
   if (!(/minta id/).test(msg)) {
-    
+
     let replyToken = pc.dto.replyToken;
-    replyText(replyToken, "testing");
-    replyText(replyToken, "testing");
+    pc.addReplyMessage("testing");
+    pc.addReplyMessage("testing");
+    // replyText(replyToken, "testing");
+    // replyText(replyToken, "testing");
   }
 
   return pc;
@@ -349,7 +351,8 @@ function chaining() : Function {
     // validating message to sent
     // harus ngirim di setiap process atau dikumpulin baru kirim?
 
-    return pc
+    let simple_text_messages = pc.replyMessages.slice(4);
+    return replyText(pc.dto.replyToken, simple_text_messages);
   }
 }
 
@@ -367,6 +370,7 @@ class Pc {
   test?: any;
   foo?: any;
   idx: number = 0;
+  replyMessages: any[] = [];
   
   prepare (process: Process): void {
     this.processes = processes;
@@ -387,6 +391,10 @@ class Pc {
 
   constructor(dto: any){
     this.dto = dto;
+  }
+
+  addReplyMessage(message: any): void {
+    this.replyMessages.push(message)
   }
 }
 
