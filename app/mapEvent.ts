@@ -351,7 +351,8 @@ function chaining() : Function {
     // validating message to sent
     // harus ngirim di setiap process atau dikumpulin baru kirim?
 
-    let simple_text_messages = pc.replyMessages.slice(4);
+    let simple_text_messages = pc.replyMessages.slice(0,4);
+    // console.log(simple_text_messages);
     return replyText(pc.dto.replyToken, simple_text_messages);
   }
 }
