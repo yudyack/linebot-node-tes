@@ -120,7 +120,7 @@ app.post('/webhook', middleware(<MiddlewareConfig> config), (req, res) => {
   }
 
   // handle events separately
-  Promise.all(req.body.events.map(handleEvent))
+  Promise.all(req.body.events.map(handle))
     .then(() => res.end())
     .catch((err) => {
       console.error(err);
