@@ -316,11 +316,11 @@ async function calc(pc: Pc): Promise<Pc> {
 
 async function mintaId(pc: Pc): Promise<Pc> {
   let msg = pc.dto.message.text.toLowerCase;
-  if (!(/minta id/).test(msg)) {
+  if (!(/^minta id$/).test(msg)) {
 
     let replyToken = pc.dto.replyToken;
-    pc.addReplyMessage("testing");
-    pc.addReplyMessage("testing");
+    // pc.addReplyMessage("testing");
+    pc.addReplyMessage(pc.dto.source.userId);
     // replyText(replyToken, "testing");
     // replyText(replyToken, "testing");
   }
@@ -341,6 +341,7 @@ const processes: Process[] = [
 function chaining() : Function {
   return async function run(dto: any) {
     let pc: Pc = new Pc(dto);
+    console.log(dto);
     for (const process of processes) {
       pc.prepare(process);
       pc = await process(pc);
