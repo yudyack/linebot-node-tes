@@ -9,9 +9,15 @@ import {
   StickerEventMessage,
   ClientConfig
 } from "@line/bot-sdk";
-import { config, hostname } from "./util";
+import { config, hostname, client as $dbclient } from "./util";
+import * as mongo from 'mongodb';
+import { MongoCallback, MongoClient, MongoError } from "mongodb";
+import { promises } from "fs";
+
+export const handle = chaining();
 
 const client = new Client(<ClientConfig>config);
+const cache = {};
 
 const replyText = (token: string, texts: string | any[]) => {
     texts = Array.isArray(texts) ? texts : [texts];
@@ -20,6 +26,8 @@ const replyText = (token: string, texts: string | any[]) => {
       texts.map((text) => ({ type: 'text', text }))
     );
 };
+
+
 
   
 function handleTextQ(message: TextEventMessage, replyToken: string, source: string) : Promise<any> | null {return Promise.resolve()}
@@ -266,3 +274,132 @@ function handleText(message:any, replyToken:any, source:any) {
       return null;
   }
 }
+
+
+async function first(pc: Pc): Promise<Pc>{
+  console.log('1');
+  let arr = [1];
+  pc.test = arr;
+  // pc['signal'] = {stop:true};
+  // pc.put(2, second);
+  return pc;
+}
+
+async function second(pc: Pc): Promise<Pc> {
+  if (!/.*/.test(pc.dto.type)) return pc;
+  console.log('2');
+  pc.test.push(2);
+  return pc;
+}
+
+async function getUser(pc: Pc): Promise<Pc> {
+  console.log(3);
+  let dbclient = await $dbclient();
+  let userId = pc.dto.source.userId;
+  let users = dbclient.db("sampledb").collection("user");
+  console.log("finding users");
+  let result = await users.find(userId).toArray().catch(()=>{throw "fail when finding user"});
+  if (result.length == 0) {
+    let userDoc = await client.getProfile(userId).catch(()=> {throw "error get data"});
+    let result = await users.insert(userDoc).catch(()=>{throw "error insert"});
+  } else {
+    console.log('user found', result);
+  }
+  dbclient.close();
+  return pc;
+}
+
+async function calc(pc: Pc): Promise<Pc> {
+  // if(!/.*/.test(pc.dto.type))
+  return pc;
+}
+
+async function mintaId(pc: Pc): Promise<Pc> {
+  let msg = pc.dto.message.text.toLowerCase;
+  if (!(/minta id/).test(msg)) {
+    
+    let replyToken = pc.dto.replyToken;
+    replyText(replyToken, "testing");
+    replyText(replyToken, "testing");
+  }
+
+  return pc;
+}
+
+
+const processes: Process[] = [
+  first,
+  second,
+  getUser,
+  calc,
+  mintaId
+
+]
+
+function chaining() : Function {
+  return async function run(dto: any) {
+    let pc: Pc = new Pc(dto);
+    for (const process of processes) {
+      pc.prepare(process);
+      pc = await process(pc);
+      if (pc.signal.stop) break;
+    }
+    // TODO:
+    // adding return
+    // validating message to sent
+    // harus ngirim di setiap process atau dikumpulin baru kirim?
+
+    return pc
+  }
+}
+
+
+interface Process{(dto:any) : Promise<any>;};
+
+class Pc {
+  signal: {
+    stop: boolean;
+  } = {stop: false}
+  dto: any;
+  processHistory: Process[] = [];
+  processes?: Process[];
+  now?: any;
+  test?: any;
+  foo?: any;
+  idx: number = 0;
+  
+  prepare (process: Process): void {
+    this.processes = processes;
+    this.now = {
+      idx: ++this.idx,
+      name: process.name
+    }
+    this.processHistory.push(process);
+  }
+  
+  put (index: number, callback: Process): void {
+    processes.splice(index, 0, callback);
+  }
+
+  putNext (callback: Process): void {
+    this.put(this.idx, callback);
+  }
+
+  constructor(dto: any){
+    this.dto = dto;
+  }
+}
+
+
+
+// export function switchHandle(load: any) {
+//   let message = load.message;
+//   switch (true) {
+//     case /.*/.test(message):
+//       first(load);
+//       break;
+//     case /.*/.test(message):
+//       second(load);
+//       break;
+//   }
+// }

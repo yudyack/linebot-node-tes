@@ -41,7 +41,7 @@ import bodyParser     = require('body-parser');
 import path           = require('path');
 
 import { config, dataAll, hostname, setHostname } from './util';
-import { handleEvent } from './mapEvent';
+import { handleEvent, handle } from './mapEvent';
 
 // Create a new express application instance
 const app: express.Application = express();
@@ -98,8 +98,8 @@ app.post('/webhook-mock', [bodyParser.json(), onlyLocalSimple], (req: express.Re
   // console.log(req);
   // console.log(req.body);
   // res.send(req.body);
-  Promise.all(req.body.events.map(handleEvent))
-    .then(() => res.end())
+  Promise.all(req.body.events.map(handle))
+    .then(() => res.status(200).end())
     .catch((err) => {
       console.error(err);
       res.status(500).end();

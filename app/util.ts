@@ -2,6 +2,9 @@
 import path = require('path');
 import fs = require('fs');
 import { Config } from '@line/bot-sdk';
+import { MongoCallback, MongoClient } from 'mongodb';
+import * as mongo from 'mongodb';
+
 
 loadEnv();
 
@@ -29,3 +32,21 @@ export var hostname: String = '';
 export function setHostname(host:String) {
     hostname = host;
 }
+
+// export function db(callback: MongoCallback<MongoClient>){
+//     const url = process.env.CONNECTDB;
+//     if (typeof url === 'string') {
+//         return mongo.connect(url, callback)
+//     } else {
+//         throw "error in loading env connect db in util.ts";
+//     }
+// }
+
+export const client = () : Promise<MongoClient> => {
+  return mongo.connect(process.env.CONNECTIONDB?
+      process.env.CONNECTIONDB : "")
+  .catch((err)=>{
+    console.log(process.env.CONNECTIONDB)
+    console.log('error database connection');
+    throw err;
+})}
