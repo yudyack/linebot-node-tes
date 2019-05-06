@@ -10,8 +10,6 @@ import {
   ClientConfig
 } from "@line/bot-sdk";
 import { config, hostname, client as $dbclient } from "./util";
-import * as mongo from 'mongodb';
-import { MongoCallback, MongoClient, MongoError } from "mongodb";
 import { promises } from "fs";
 
 export const handle = chaining();
