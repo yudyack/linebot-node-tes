@@ -41,7 +41,7 @@ import bodyParser     = require('body-parser');
 import path           = require('path');
 
 import { config, dataAll, hostname, setHostname } from './util';
-import { handleEvent, handle } from './mapEvent';
+import { handleEvent, handle, chaining } from './mapEvent';
 
 // Create a new express application instance
 const app: express.Application = express();

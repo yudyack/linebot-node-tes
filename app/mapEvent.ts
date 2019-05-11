@@ -336,8 +336,11 @@ const processes: Process[] = [
 
 ]
 
-function chaining() : Function {
+let counter = 0;
+export function chaining() : Function {
+  counter+=1;
   return async function run(dto: any) {
+    console.log("counter: " + counter);
     let pc: Pc = new Pc(dto);
     console.log(dto);
     for (const process of processes) {
