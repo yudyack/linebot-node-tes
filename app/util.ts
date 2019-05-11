@@ -7,6 +7,8 @@ import * as mongo from 'mongodb';
 
 
 loadEnv();
+overrideLog();
+console.log("util terpanggil");
 
 export function loadData(): object {
     const raw = fs.readFileSync(process.env.HOME_DIR+'data.json');
@@ -50,3 +52,7 @@ export const client = () : Promise<MongoClient> => {
     console.log('error database connection');
     throw err;
 })}
+
+function overrideLog() {
+
+}
