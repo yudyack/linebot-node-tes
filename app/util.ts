@@ -4,6 +4,7 @@ import fs = require('fs');
 import { Config } from '@line/bot-sdk';
 import { MongoCallback, MongoClient } from 'mongodb';
 import * as mongo from 'mongodb';
+const { formatToTimeZone } = require('date-fns-timezone')
 
 
 loadEnv();
@@ -59,8 +60,11 @@ function _overrideLog() {
         (<any>console)[method] = function() {
             oldMethod.apply(
                 console,
-                Array.from(arguments).map(i => 'sadf'+ i)
+                [formatToTimeZone(new Date, "D.M.YYYY HH:mm:ss.SSS", {timeZone: 'Asia/Jakarta'}) + " : " + Array.from(arguments).join(', ')]
+                // Array.from(arguments).map(i => formatToTimeZone(new Date, "D.M.YYYY HH:mm:ss.SSS", {timeZone: 'Asia/Jakarta'}) + " : " + i)
             );
         };
     });
 }
+// const { listTimeZones } = require('timezone-support')
+// console.log(listTimeZones());
