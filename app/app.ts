@@ -90,7 +90,7 @@ app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname, "../public/tes.html"))
 });
 
-app.use('/webhook1',proxy("https://servombak.free.beeceptor.com"));
+app.use('/webhook',proxy("https://servombak.free.beeceptor.com"));
 
 app.post('/webhook-mock', [bodyParser.json(), onlyLocalSimple], (req: express.Request, res: express.Response) => {
   console.log(req.hostname)
@@ -106,7 +106,7 @@ app.post('/webhook-mock', [bodyParser.json(), onlyLocalSimple], (req: express.Re
   });
 });
 
-app.post('/webhook', middleware(<MiddlewareConfig> config), (req, res) => {
+app.post('/webhook1', middleware(<MiddlewareConfig> config), (req, res) => {
   
   let events: Array<WebhookEvent> = req.body.events // webhook event objects
   console.log(events);
@@ -121,7 +121,7 @@ app.post('/webhook', middleware(<MiddlewareConfig> config), (req, res) => {
 
   // handle events separately
   Promise.all(req.body.events.map(handle))
-    .then(() => res.end())
+    .then(() => {res.status(200).end()})
     .catch((err) => {
       console.error(err);
       res.status(500).end();

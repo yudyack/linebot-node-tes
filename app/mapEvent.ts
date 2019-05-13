@@ -326,6 +326,14 @@ async function mintaId(pc: Pc): Promise<Pc> {
   return pc;
 }
 
+async function testing(pc: Pc): Promise<Pc> {
+  // if ((event).replyToken && (event).replyToken.match(/^(.)\1*$/)) {
+  //   return console.log("Test hook recieved: " + JSON.stringify(event.message));
+  // }
+
+  return pc;
+}
+
 
 const processes: Process[] = [
   first,
