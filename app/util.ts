@@ -7,7 +7,7 @@ import * as mongo from 'mongodb';
 
 
 loadEnv();
-overrideLog();
+export const overrideLog = _overrideLog();
 console.log("util terpanggil");
 
 export function loadData(): object {
@@ -53,6 +53,14 @@ export const client = () : Promise<MongoClient> => {
     throw err;
 })}
 
-function overrideLog() {
-
+function _overrideLog() {
+    ["log", "warn", "error"].forEach(function(method) {
+        var oldMethod: any = (<any>console)[method].bind(console);
+        (<any>console)[method] = function() {
+            oldMethod.apply(
+                console,
+                Array.from(arguments).map(i => 'sadf'+ i)
+            );
+        };
+    });
 }
