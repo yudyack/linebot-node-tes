@@ -85,7 +85,7 @@ export namespace User {
   }
 
   export async function getFromLine(userId: string) {
-    return await client.getProfile(userId).catch(()=> {throw "error get data"});
+    return await client.getProfile(userId).catch((i)=> {throw "error get data"; console.warn(i);});
   }
 
   async function insert(user: any) {
