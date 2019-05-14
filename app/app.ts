@@ -94,6 +94,7 @@ app.use('/webhook1',proxy("https://servombak.free.beeceptor.com"));
 
 app.post('/webhook-mock', [bodyParser.json(), onlyLocalSimple], (req: express.Request, res: express.Response) => {
   console.log(req.hostname)
+  console.log(req.body.events);
   // handle events separately
   let events = req.body.events;
   Promise.all(req.body.events.map(handle))

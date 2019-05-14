@@ -73,13 +73,14 @@ function second(pc) {
 }
 function getUser(pc) {
     return __awaiter(this, void 0, void 0, function () {
-        var userId, user;
+        var userId, groupId, user;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     console.log('pc 3');
                     userId = pc.dto.source.userId;
-                    return [4 /*yield*/, repository_1.User.get(userId)];
+                    groupId = pc.dto.source.groupId;
+                    return [4 /*yield*/, repository_1.User.get(userId, groupId).catch(function () { return null; })];
                 case 1:
                     user = _a.sent();
                     console.log(user);

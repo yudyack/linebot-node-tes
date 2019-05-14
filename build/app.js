@@ -51,6 +51,7 @@ app.get('/', function (req, res) {
 app.use('/webhook1', proxy("https://servombak.free.beeceptor.com"));
 app.post('/webhook-mock', [bodyParser.json(), onlyLocalSimple], function (req, res) {
     console.log(req.hostname);
+    console.log(req.body.events);
     // handle events separately
     var events = req.body.events;
     Promise.all(req.body.events.map(mapEvent_1.handle))

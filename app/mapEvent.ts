@@ -144,6 +144,7 @@ export function chaining() : Function {
 
 interface Process{(dto:any) : Promise<any>;};
 
+// TODO: more typing from line
 export class Pc {
   signal: {
     stop: boolean;
@@ -157,6 +158,7 @@ export class Pc {
   idx: number = 0;
   replyMessages: any[] = [];
   time?: number[];
+
   
   prepare (pc: Process): void {
     this.processes = processes;
