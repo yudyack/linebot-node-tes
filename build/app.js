@@ -8,7 +8,6 @@ var bodyParser = require("body-parser");
 var path = require("path");
 var util_1 = require("./util");
 var mapEvent_1 = require("./mapEvent");
-var user_1 = require("./user");
 // Create a new express application instance
 var app = express();
 function onlyLocalSimple(req, res, next) {
@@ -51,10 +50,6 @@ app.get('/', function (req, res) {
 });
 app.use('/webhook1', proxy("https://servombak.free.beeceptor.com"));
 app.post('/webhook-mock', [bodyParser.json(), onlyLocalSimple], function (req, res) {
-    user_1.plus(1);
-    // let user = _users;
-    // user += 1000;
-    console.log("uesrs: " + user_1._users);
     console.log(req.hostname);
     // handle events separately
     var events = req.body.events;

@@ -1,23 +1,11 @@
-
 import path = require('path');
 import fs = require('fs');
 import { Config } from '@line/bot-sdk';
 import { MongoCallback, MongoClient } from 'mongodb';
 import * as mongo from 'mongodb';
-const { formatToTimeZone } = require('date-fns-timezone')
-
+// const { formatToTimeZone } = require('date-fns-timezone')
 
 loadEnv();
-export const overrideLog = _overrideLog();
-console.log("util terpanggil");
-
-export function loadData(): object {
-    const raw = fs.readFileSync(process.env.HOME_DIR+'data.json');
-    const dataAll = JSON.parse(raw.toString());
-
-    return dataAll;
-}
-
 export function loadEnv(): void {
     process.env.HOME_DIR = path.resolve(__dirname, '../') + "/";
     require('dotenv').config({path:process.env.HOME_DIR+".env"});
@@ -27,6 +15,30 @@ export const config: Config = {
     channelAccessToken: <string> process.env.CHANNEL_ACCESS_TOKEN,
     channelSecret: <string> process.env.CHANNEL_SECRET
 }
+
+export const client = () : Promise<MongoClient> => {
+    console.log(process.env.CONNECTIONDB)
+    return mongo.connect(process.env.CONNECTIONDB?
+        process.env.CONNECTIONDB : "", { useNewUrlParser: true })
+    .catch((err)=>{
+        console.log('error database connection');
+        throw err;
+    })
+}
+
+import { closeDbClient } from './repository';
+
+
+// export const overrideLog = _overrideLog();
+console.log("util terpanggil");
+
+export function loadData(): object {
+    const raw = fs.readFileSync(process.env.HOME_DIR+'data.json');
+    const dataAll = JSON.parse(raw.toString());
+
+    return dataAll;
+}
+
 
 export const dataAll = loadData();
 
@@ -45,17 +57,9 @@ export function setHostname(host:String) {
 //     }
 // }
 
-export const client = () : Promise<MongoClient> => {
-    console.log(process.env.CONNECTIONDB)
-    return mongo.connect(process.env.CONNECTIONDB?
-        process.env.CONNECTIONDB : "")
-    .catch((err)=>{
-        console.log('error database connection');
-        throw err;
-    })
-}
 
-function _overrideLog() {
+
+// function _overrideLog() {
     // ["log", "warn", "error"].forEach(function(method) {
     //     var oldMethod: any = (<any>console)[method].bind(console);
     //     (<any>console)[method] = function() {
@@ -66,6 +70,17 @@ function _overrideLog() {
     //         );
     //     };
     // });
-}
+// }
 // const { listTimeZones } = require('timezone-support')
 // console.log(listTimeZones());
+
+// process.on('uncaughtException', exceptionHandler);
+// process.on("exit", exitHandler);
+
+function exitHandler(code: number) {
+    closeDbClient();
+}
+
+function exceptionHandler() {
+    closeDbClient();
+}

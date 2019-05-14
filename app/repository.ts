@@ -21,11 +21,30 @@ export const plus = function(num: number) {
 
 
 const client = new Client(<ClientConfig>config);
+let dbClient: MongoClient | null = null;
+
+async function getDbClient() {
+  if (!dbClient || !dbClient.isConnected()) {
+    dbClient = await $dbclient()
+      .catch(i => {
+        console.warn("error getting dbCline", i);
+        return null;
+      });
+  }
+  return dbClient;
+}
+
+export async function closeDbClient() {
+  if(dbClient){
+    dbClient.close();
+    dbClient = null;
+  }
+}
+
 export namespace User {
   
   let repo = new Map<string, any>();
   let usersClient: Collection<any> | null;
-  let dbClient: MongoClient | null;
 
   init();
 
@@ -81,25 +100,12 @@ export namespace User {
     }
   }
 
-  async function getDbClient() {
-    if (!dbClient || !dbClient.isConnected()) {
-      dbClient = await $dbclient()
-        .catch(i => null);
-    }
-    return dbClient;
-  }
-
-  export async function closeDbClient() {
-    if(dbClient){
-      dbClient.close();
-    }
-  }
-
   async function getUsersClient() {
     if(!usersClient) {
-      let dbClient = await getDbClient().catch(i => console.warn("db client null"));
+      let dbClient = await getDbClient().catch(i => console.warn("db client null", i));
       usersClient = dbClient? dbClient.db("sampledb").collection("user") : null;
     } 
     return usersClient;
   }
 }
+

@@ -40,7 +40,7 @@ import proxy          = require('express-http-proxy');
 import bodyParser     = require('body-parser');
 import path           = require('path');
 
-import { config, dataAll, hostname, setHostname, overrideLog, loadEnv } from './util';
+import { config, dataAll, hostname, setHostname, loadEnv } from './util';
 import { handle, chaining } from './mapEvent';
 import { userInfo } from 'os';
 // Create a new express application instance
