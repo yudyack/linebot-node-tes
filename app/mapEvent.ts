@@ -19,6 +19,7 @@ const cache = {};
 
 const replyText = (token: string, texts: string | any[]) => {
     texts = Array.isArray(texts) ? texts : [texts];
+    console.log(`sending ${texts}`);
     return client.replyMessage(
       token,
       texts.map((text) => ({ type: 'text', text }))
@@ -275,7 +276,7 @@ function handleText(message:any, replyToken:any, source:any) {
 
 
 async function first(pc: Pc): Promise<Pc>{
-  console.log('1');
+  console.log('pc 1');
   let arr = [1];
   pc.test = arr;
   // pc['signal'] = {stop:true};
@@ -285,13 +286,13 @@ async function first(pc: Pc): Promise<Pc>{
 
 async function second(pc: Pc): Promise<Pc> {
   if (!/.*/.test(pc.dto.type)) return pc;
-  console.log('2');
+  console.log('pc 2');
   pc.test.push(2);
   return pc;
 }
 
 async function getUser(pc: Pc): Promise<Pc> {
-  console.log(3);
+  console.log('pc 3');
   let dbclient = await $dbclient();
   let userId = pc.dto.source.userId;
   let users = dbclient.db("sampledb").collection("user");
@@ -313,34 +314,45 @@ async function calc(pc: Pc): Promise<Pc> {
 }
 
 async function mintaId(pc: Pc): Promise<Pc> {
-  let msg = pc.dto.message.text.toLowerCase;
-  if (!(/^minta id$/).test(msg)) {
+  let text = pc.getMsgText() || "";
+  if ((/^minta id$/).test(text)) {
 
     let replyToken = pc.dto.replyToken;
-    // pc.addReplyMessage("testing");
     pc.addReplyMessage(pc.dto.source.userId);
-    // replyText(replyToken, "testing");
-    // replyText(replyToken, "testing");
   }
 
   return pc;
 }
 
 async function testing(pc: Pc): Promise<Pc> {
-  // if ((event).replyToken && (event).replyToken.match(/^(.)\1*$/)) {
-  //   return console.log("Test hook recieved: " + JSON.stringify(event.message));
-  // }
-
+  let matches = pc.getMatches(/^tes \d+/);
+  if (matches.length > 0) {
+    let number = parseInt(matches[0].split(" ")[1]) || 1;
+    console.log(`number: ${number}`);
+    let replyToken = pc.dto.replyToken;
+    await new Promise((resolve) => {
+      setTimeout(function() {
+        replyText(replyToken, `replied for ${number}`)
+          .catch((err) => {
+            console.warn(err, "message not sent");
+            
+          });
+          resolve();
+        }, number);
+      }
+    );
+  }
   return pc;
 }
 
 
 const processes: Process[] = [
-  first,
-  second,
-  getUser,
-  calc,
-  mintaId
+  // first,
+  // second,
+  // getUser,
+  // calc,
+  // mintaId,
+  testing
 
 ]
 
@@ -348,22 +360,39 @@ let counter = 0;
 export function chaining() : Function {
   counter+=1;
   return async function run(dto: any) {
+    let hrstart = process.hrtime();
     console.log("counter: " + counter);
     let pc: Pc = new Pc(dto);
-    console.log(dto);
-    for (const process of processes) {
-      pc.prepare(process);
-      pc = await process(pc);
-      if (pc.signal.stop) break;
-    }
-    // TODO:
-    // adding return
-    // validating message to sent
-    // harus ngirim di setiap process atau dikumpulin baru kirim?
+    if (pc.dto) {
+      for (const process of processes) {
+        pc.prepare(process);
+        pc = await process(pc)
+          .catch((err)=> {
+            console.warn(err);
+            let newstop = new Pc(dto);
+            newstop.signal.stop = true;
+            return newstop;
+          });
+        if (pc.signal.stop) break;
+      }
+      let hrend = process.hrtime(hrstart);
+      console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000)
+      // TODO:
+      // validating message to sent
 
-    let simple_text_messages = pc.replyMessages.slice(0,4);
-    // console.log(simple_text_messages);
-    return replyText(pc.dto.replyToken, simple_text_messages);
+      let simple_text_messages = pc.replyMessages.slice(0,4);
+      // console.log(simple_text_messages);
+
+      if (simple_text_messages.length > 0) {
+        replyText(pc.dto.replyToken, simple_text_messages)
+          .catch(i => {
+            console.warn("fail reply msg: " + pc.replyMessages);
+            // console.log(i);
+            return i;
+        });
+      }
+    }
+    return ;
   }
 }
 
@@ -382,14 +411,16 @@ class Pc {
   foo?: any;
   idx: number = 0;
   replyMessages: any[] = [];
+  time?: number[];
   
-  prepare (process: Process): void {
+  prepare (pc: Process): void {
     this.processes = processes;
     this.now = {
       idx: ++this.idx,
-      name: process.name
+      name: pc.name
     }
-    this.processHistory.push(process);
+    this.processHistory.push(pc);
+    this.time = process.hrtime();
   }
   
   put (index: number, callback: Process): void {
@@ -407,6 +438,25 @@ class Pc {
   addReplyMessage(message: any): void {
     this.replyMessages.push(message)
   }
+
+  getMsgText(): string | null {
+    console.log(this.dto.message.text);
+    let dto = this.dto;
+    let message = dto.message;
+    let text = message.text;
+    // let text = this.dto.messsage.text || "";
+    return text ? text : null;
+  }
+
+  getMsg(): string {
+    return this.dto.message;
+  }
+
+  getMatches(re: RegExp): string[] {
+    let text = this.getMsgText() || "";
+    return text.match(re) || [];
+  }
+
 }
 
 

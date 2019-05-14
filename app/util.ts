@@ -46,25 +46,25 @@ export function setHostname(host:String) {
 // }
 
 export const client = () : Promise<MongoClient> => {
-  return mongo.connect(process.env.CONNECTIONDB?
-      process.env.CONNECTIONDB : "")
-  .catch((err)=>{
     console.log(process.env.CONNECTIONDB)
+    return mongo.connect(process.env.CONNECTIONDB?
+        process.env.CONNECTIONDB : "")
+    .catch((err)=>{
     console.log('error database connection');
     throw err;
 })}
 
 function _overrideLog() {
-    ["log", "warn", "error"].forEach(function(method) {
-        var oldMethod: any = (<any>console)[method].bind(console);
-        (<any>console)[method] = function() {
-            oldMethod.apply(
-                console,
-                [formatToTimeZone(new Date, "D.M.YYYY HH:mm:ss.SSS", {timeZone: 'Asia/Jakarta'}) + " : " + Array.from(arguments).join(', ')]
-                // Array.from(arguments).map(i => formatToTimeZone(new Date, "D.M.YYYY HH:mm:ss.SSS", {timeZone: 'Asia/Jakarta'}) + " : " + i)
-            );
-        };
-    });
+    // ["log", "warn", "error"].forEach(function(method) {
+    //     var oldMethod: any = (<any>console)[method].bind(console);
+    //     (<any>console)[method] = function() {
+    //         oldMethod.apply(
+    //             console,
+    //             [formatToTimeZone(new Date, "D.M.YYYY HH:mm:ss.SSS", {timeZone: 'Asia/Jakarta'}) + " : " + Array.from(arguments).join(', ')]
+    //             // Array.from(arguments).map(i => formatToTimeZone(new Date, "D.M.YYYY HH:mm:ss.SSS", {timeZone: 'Asia/Jakarta'}) + " : " + i)
+    //         );
+    //     };
+    // });
 }
 // const { listTimeZones } = require('timezone-support')
 // console.log(listTimeZones());

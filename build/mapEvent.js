@@ -42,6 +42,7 @@ var client = new bot_sdk_1.Client(util_1.config);
 var cache = {};
 var replyText = function (token, texts) {
     texts = Array.isArray(texts) ? texts : [texts];
+    console.log("sending " + texts);
     return client.replyMessage(token, texts.map(function (text) { return ({ type: 'text', text: text }); }));
 };
 function handleTextQ(message, replyToken, source) { return Promise.resolve(); }
@@ -261,7 +262,7 @@ function first(pc) {
     return __awaiter(this, void 0, void 0, function () {
         var arr;
         return __generator(this, function (_a) {
-            console.log('1');
+            console.log('pc 1');
             arr = [1];
             pc.test = arr;
             // pc['signal'] = {stop:true};
@@ -275,7 +276,7 @@ function second(pc) {
         return __generator(this, function (_a) {
             if (!/.*/.test(pc.dto.type))
                 return [2 /*return*/, pc];
-            console.log('2');
+            console.log('pc 2');
             pc.test.push(2);
             return [2 /*return*/, pc];
         });
@@ -287,7 +288,7 @@ function getUser(pc) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    console.log(3);
+                    console.log('pc 3');
                     return [4 /*yield*/, util_1.client()];
                 case 1:
                     dbclient = _a.sent();
@@ -325,43 +326,79 @@ function calc(pc) {
 }
 function mintaId(pc) {
     return __awaiter(this, void 0, void 0, function () {
-        var msg, replyToken;
+        var text, replyToken;
         return __generator(this, function (_a) {
-            msg = pc.dto.message.text.toLowerCase;
-            if (!(/^minta id$/).test(msg)) {
+            text = pc.getMsgText() || "";
+            if ((/^minta id$/).test(text)) {
                 replyToken = pc.dto.replyToken;
-                // pc.addReplyMessage("testing");
                 pc.addReplyMessage(pc.dto.source.userId);
-                // replyText(replyToken, "testing");
-                // replyText(replyToken, "testing");
             }
             return [2 /*return*/, pc];
         });
     });
 }
+function testing(pc) {
+    return __awaiter(this, void 0, void 0, function () {
+        var matches, number_1, replyToken_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    matches = pc.getMatches(/^tes \d+/);
+                    if (!(matches.length > 0)) return [3 /*break*/, 2];
+                    number_1 = parseInt(matches[0].split(" ")[1]) || 1;
+                    console.log("number: " + number_1);
+                    replyToken_1 = pc.dto.replyToken;
+                    return [4 /*yield*/, new Promise(function (resolve) {
+                            setTimeout(function () {
+                                replyText(replyToken_1, "replied for " + number_1)
+                                    .catch(function (err) {
+                                    console.warn(err, "message not sent");
+                                });
+                                resolve();
+                            }, number_1);
+                        })];
+                case 1:
+                    _a.sent();
+                    _a.label = 2;
+                case 2: return [2 /*return*/, pc];
+            }
+        });
+    });
+}
 var processes = [
-    first,
-    second,
-    getUser,
-    calc,
-    mintaId
+    // first,
+    // second,
+    // getUser,
+    // calc,
+    // mintaId,
+    testing
 ];
+var counter = 0;
 function chaining() {
+    counter += 1;
     return function run(dto) {
         return __awaiter(this, void 0, void 0, function () {
-            var pc, _i, processes_1, process_1, simple_text_messages;
+            var hrstart, pc, _i, processes_1, process_1, hrend, simple_text_messages;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
+                        hrstart = process.hrtime();
+                        console.log("counter: " + counter);
                         pc = new Pc(dto);
-                        console.log(dto);
+                        if (!pc.dto) return [3 /*break*/, 5];
                         _i = 0, processes_1 = processes;
                         _a.label = 1;
                     case 1:
                         if (!(_i < processes_1.length)) return [3 /*break*/, 4];
                         process_1 = processes_1[_i];
                         pc.prepare(process_1);
-                        return [4 /*yield*/, process_1(pc)];
+                        return [4 /*yield*/, process_1(pc)
+                                .catch(function (err) {
+                                console.warn(err);
+                                var newstop = new Pc(dto);
+                                newstop.signal.stop = true;
+                                return newstop;
+                            })];
                     case 2:
                         pc = _a.sent();
                         if (pc.signal.stop)
@@ -371,14 +408,26 @@ function chaining() {
                         _i++;
                         return [3 /*break*/, 1];
                     case 4:
+                        hrend = process.hrtime(hrstart);
+                        console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
                         simple_text_messages = pc.replyMessages.slice(0, 4);
                         // console.log(simple_text_messages);
-                        return [2 /*return*/, replyText(pc.dto.replyToken, simple_text_messages)];
+                        if (simple_text_messages.length > 0) {
+                            replyText(pc.dto.replyToken, simple_text_messages)
+                                .catch(function (i) {
+                                console.warn("fail reply msg: " + pc.replyMessages);
+                                // console.log(i);
+                                return i;
+                            });
+                        }
+                        _a.label = 5;
+                    case 5: return [2 /*return*/];
                 }
             });
         });
     };
 }
+exports.chaining = chaining;
 ;
 var Pc = /** @class */ (function () {
     function Pc(dto) {
@@ -388,13 +437,14 @@ var Pc = /** @class */ (function () {
         this.replyMessages = [];
         this.dto = dto;
     }
-    Pc.prototype.prepare = function (process) {
+    Pc.prototype.prepare = function (pc) {
         this.processes = processes;
         this.now = {
             idx: ++this.idx,
-            name: process.name
+            name: pc.name
         };
-        this.processHistory.push(process);
+        this.processHistory.push(pc);
+        this.time = process.hrtime();
     };
     Pc.prototype.put = function (index, callback) {
         processes.splice(index, 0, callback);
@@ -404,6 +454,21 @@ var Pc = /** @class */ (function () {
     };
     Pc.prototype.addReplyMessage = function (message) {
         this.replyMessages.push(message);
+    };
+    Pc.prototype.getMsgText = function () {
+        console.log(this.dto.message.text);
+        var dto = this.dto;
+        var message = dto.message;
+        var text = message.text;
+        // let text = this.dto.messsage.text || "";
+        return text ? text : null;
+    };
+    Pc.prototype.getMsg = function () {
+        return this.dto.message;
+    };
+    Pc.prototype.getMatches = function (re) {
+        var text = this.getMsgText() || "";
+        return text.match(re) || [];
     };
     return Pc;
 }());
@@ -418,3 +483,4 @@ var Pc = /** @class */ (function () {
 //       break;
 //   }
 // }
+//# sourceMappingURL=mapEvent.js.map

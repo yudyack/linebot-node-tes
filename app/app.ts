@@ -40,9 +40,8 @@ import proxy          = require('express-http-proxy');
 import bodyParser     = require('body-parser');
 import path           = require('path');
 
-import { config, dataAll, hostname, setHostname, overrideLog } from './util';
+import { config, dataAll, hostname, setHostname, overrideLog, loadEnv } from './util';
 import { handleEvent, handle, chaining } from './mapEvent';
-
 // Create a new express application instance
 const app: express.Application = express();
 
@@ -84,8 +83,8 @@ app.post('/fixedPush',bodyParser.json(), (req, res) => {
 app.get('/', function (req, res) {
   // console.log(req.connection.remoteAddress)
   let remote_address = req.header('remote_addr') || req.connection.remoteAddress;
-  console.log(req.hostname);
-  console.log(path.join(__dirname,'/public'));
+  // console.log(req.hostname);
+  // console.log(path.join(__dirname,'/public'));
   // res.send('Hello World!');
   res.sendFile(path.join(__dirname, "../public/tes.html"))
 });
@@ -95,16 +94,13 @@ app.use('/webhook',proxy("https://servombak.free.beeceptor.com"));
 app.post('/webhook-mock', [bodyParser.json(), onlyLocalSimple], (req: express.Request, res: express.Response) => {
   console.log(req.hostname)
   // handle events separately
-  // console.log(req);
-  // console.log(req.body);
-  // res.send(req.body);
+  let events = req.body.events;
   Promise.all(req.body.events.map(handle))
-    .then(() => res.status(200).end())
-    .catch((err) => {
-      console.error(err);
-      res.status(500).end();
+    .then((i) => {
+      console.info("all handled");
+    })
+  res.status(200).end()
   });
-});
 
 app.post('/webhook1', middleware(<MiddlewareConfig> config), (req, res) => {
   
@@ -121,11 +117,7 @@ app.post('/webhook1', middleware(<MiddlewareConfig> config), (req, res) => {
 
   // handle events separately
   Promise.all(req.body.events.map(handle))
-    .then(() => {res.status(200).end()})
-    .catch((err) => {
-      console.error(err);
-      res.status(500).end();
-  });
+    .then(() => {res.status(200).end()});
 })
 
 app.use('/static', express.static(path.join(__dirname,'../static')));

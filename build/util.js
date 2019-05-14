@@ -10,7 +10,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var path = require("path");
 var fs = require("fs");
 var mongo = __importStar(require("mongodb"));
+var formatToTimeZone = require('date-fns-timezone').formatToTimeZone;
 loadEnv();
+exports.overrideLog = _overrideLog();
+console.log("util terpanggil");
 function loadData() {
     var raw = fs.readFileSync(process.env.HOME_DIR + 'data.json');
     var dataAll = JSON.parse(raw.toString());
@@ -41,11 +44,26 @@ exports.setHostname = setHostname;
 //     }
 // }
 exports.client = function () {
+    console.log(process.env.CONNECTIONDB);
     return mongo.connect(process.env.CONNECTIONDB ?
         process.env.CONNECTIONDB : "")
         .catch(function (err) {
-        console.log(process.env.CONNECTIONDB);
         console.log('error database connection');
         throw err;
     });
 };
+function _overrideLog() {
+    // ["log", "warn", "error"].forEach(function(method) {
+    //     var oldMethod: any = (<any>console)[method].bind(console);
+    //     (<any>console)[method] = function() {
+    //         oldMethod.apply(
+    //             console,
+    //             [formatToTimeZone(new Date, "D.M.YYYY HH:mm:ss.SSS", {timeZone: 'Asia/Jakarta'}) + " : " + Array.from(arguments).join(', ')]
+    //             // Array.from(arguments).map(i => formatToTimeZone(new Date, "D.M.YYYY HH:mm:ss.SSS", {timeZone: 'Asia/Jakarta'}) + " : " + i)
+    //         );
+    //     };
+    // });
+}
+// const { listTimeZones } = require('timezone-support')
+// console.log(listTimeZones());
+//# sourceMappingURL=util.js.map

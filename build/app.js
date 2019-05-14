@@ -43,26 +43,23 @@ app.post('/fixedPush', bodyParser.json(), function (req, res) {
 app.get('/', function (req, res) {
     // console.log(req.connection.remoteAddress)
     var remote_address = req.header('remote_addr') || req.connection.remoteAddress;
-    console.log(req.hostname);
-    console.log(path.join(__dirname, '/public'));
+    // console.log(req.hostname);
+    // console.log(path.join(__dirname,'/public'));
     // res.send('Hello World!');
     res.sendFile(path.join(__dirname, "../public/tes.html"));
 });
-app.use('/webhook1', proxy("https://servombak.free.beeceptor.com"));
+app.use('/webhook', proxy("https://servombak.free.beeceptor.com"));
 app.post('/webhook-mock', [bodyParser.json(), onlyLocalSimple], function (req, res) {
     console.log(req.hostname);
     // handle events separately
-    // console.log(req);
-    // console.log(req.body);
-    // res.send(req.body);
+    var events = req.body.events;
     Promise.all(req.body.events.map(mapEvent_1.handle))
-        .then(function () { return res.status(200).end(); })
-        .catch(function (err) {
-        console.error(err);
-        res.status(500).end();
+        .then(function (i) {
+        console.info("all handled");
     });
+    res.status(200).end();
 });
-app.post('/webhook', bot_sdk_1.middleware(util_1.config), function (req, res) {
+app.post('/webhook1', bot_sdk_1.middleware(util_1.config), function (req, res) {
     var events = req.body.events; // webhook event objects
     console.log(events);
     var dest = req.body.destination; // user ID of th,e bot (optional)
@@ -72,13 +69,10 @@ app.post('/webhook', bot_sdk_1.middleware(util_1.config), function (req, res) {
     }
     // handle events separately
     Promise.all(req.body.events.map(mapEvent_1.handle))
-        .then(function () { return res.end(); })
-        .catch(function (err) {
-        console.error(err);
-        res.status(500).end();
-    });
+        .then(function () { res.status(200).end(); });
 });
 app.use('/static', express.static(path.join(__dirname, '../static')));
 app.listen(process.env.PORT, function () {
     console.log("Example app listening on port " + process.env.PORT + "!");
 });
+//# sourceMappingURL=app.js.map
