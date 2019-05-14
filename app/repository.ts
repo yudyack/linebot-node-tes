@@ -85,6 +85,7 @@ export namespace User {
   }
 
   export async function getFromLine(userId: string) {
+    console.log(`get user line: ${userId}`);
     return await client.getProfile(userId).catch((i)=> { console.warn(i); throw "error get data";});
   }
 
