@@ -47,7 +47,8 @@ async function second(pc: Pc): Promise<Pc> {
 async function getUser(pc: Pc): Promise<Pc> {
   console.log('pc 3');
   let userId = pc.dto.source.userId;
-  let user = await User.get(userId);
+  let groupId = pc.dto.source.groupId;
+  let user = await User.get(userId, groupId).catch(() => null);
   console.log(user);
   return pc;
 }

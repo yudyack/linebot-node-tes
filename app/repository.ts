@@ -1,5 +1,5 @@
 import { client as $dbclient, config } from "./util";
-import { Client, ClientConfig } from "@line/bot-sdk";
+import { Client, ClientConfig, Profile } from "@line/bot-sdk";
 import { Collection, MongoClient } from "mongodb";
 
 export let _users = 0;
@@ -46,7 +46,7 @@ export namespace User {
   let repo = new Map<string, any>();
   let usersClient: Collection<any> | null;
 
-  init();
+  // init();
 
   async function init() {
     let users = await getUsersClient();
@@ -64,7 +64,7 @@ export namespace User {
     // closeDbClient();
   }
 
-  export async function get(userId: string) {
+  export async function get(userId: string, groupId: string) {
     let user = repo.get(userId) || null;
     if (user === null) {
       let users = await getUsersClient();
@@ -73,8 +73,9 @@ export namespace User {
       if (result == null ) {
         console.warn("can't get userClient");
       } else if (result != null && result.length == 0) {
-        let userDoc = await getFromLine(userId);
-        await insert(userDoc).catch(() => "fail insert");
+        let userDoc = await getFromLine(userId).catch((i => null));
+        userDoc = userDoc? userDoc : await getFromLine(userId, groupId).catch(i => null);
+        await insert(userDoc).catch(() => {throw "fail insert"});
       } else {
         user = result[0];
         console.log('user found', result);
@@ -84,9 +85,20 @@ export namespace User {
     return user;
   }
 
-  export async function getFromLine(userId: string) {
+  export async function getFromLine(userId: string, groupId?: string) {
     console.log(`get user line: ${userId}`);
-    return await client.getProfile(userId).catch((i)=> { console.warn(i); throw "error get data";});
+    let prom;
+    if(!groupId) {
+      prom = client.getProfile(userId);
+    } else {
+      prom = client.getRoomMemberProfile(userId, groupId);
+    }
+    let profile =  await prom.catch((i)=> { 
+      console.warn(i); 
+      // return null;
+      throw "fail getprofile"
+    });
+    return profile;
   }
 
   async function insert(user: any) {
