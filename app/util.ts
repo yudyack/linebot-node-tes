@@ -50,9 +50,10 @@ export const client = () : Promise<MongoClient> => {
     return mongo.connect(process.env.CONNECTIONDB?
         process.env.CONNECTIONDB : "")
     .catch((err)=>{
-    console.log('error database connection');
-    throw err;
-})}
+        console.log('error database connection');
+        throw err;
+    })
+}
 
 function _overrideLog() {
     // ["log", "warn", "error"].forEach(function(method) {

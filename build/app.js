@@ -8,6 +8,7 @@ var bodyParser = require("body-parser");
 var path = require("path");
 var util_1 = require("./util");
 var mapEvent_1 = require("./mapEvent");
+var user_1 = require("./user");
 // Create a new express application instance
 var app = express();
 function onlyLocalSimple(req, res, next) {
@@ -48,8 +49,12 @@ app.get('/', function (req, res) {
     // res.send('Hello World!');
     res.sendFile(path.join(__dirname, "../public/tes.html"));
 });
-app.use('/webhook', proxy("https://servombak.free.beeceptor.com"));
+app.use('/webhook1', proxy("https://servombak.free.beeceptor.com"));
 app.post('/webhook-mock', [bodyParser.json(), onlyLocalSimple], function (req, res) {
+    user_1.plus(1);
+    // let user = _users;
+    // user += 1000;
+    console.log("uesrs: " + user_1._users);
     console.log(req.hostname);
     // handle events separately
     var events = req.body.events;
@@ -59,7 +64,7 @@ app.post('/webhook-mock', [bodyParser.json(), onlyLocalSimple], function (req, r
     });
     res.status(200).end();
 });
-app.post('/webhook1', bot_sdk_1.middleware(util_1.config), function (req, res) {
+app.post('/webhook', bot_sdk_1.middleware(util_1.config), function (req, res) {
     var events = req.body.events; // webhook event objects
     console.log(events);
     var dest = req.body.destination; // user ID of th,e bot (optional)
@@ -68,8 +73,11 @@ app.post('/webhook1', bot_sdk_1.middleware(util_1.config), function (req, res) {
         console.log("Destination User ID: " + req.body.destination);
     }
     // handle events separately
-    Promise.all(req.body.events.map(mapEvent_1.handle))
-        .then(function () { res.status(200).end(); });
+    Promise.all(req.body.events.map(mapEvent_1.chaining()))
+        .then(function (i) {
+        console.info("all handled");
+    });
+    res.status(200).end();
 });
 app.use('/static', express.static(path.join(__dirname, '../static')));
 app.listen(process.env.PORT, function () {

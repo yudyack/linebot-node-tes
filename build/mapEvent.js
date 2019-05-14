@@ -37,10 +37,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var bot_sdk_1 = require("@line/bot-sdk");
 var util_1 = require("./util");
+var user_1 = require("./user");
 exports.handle = chaining();
 var client = new bot_sdk_1.Client(util_1.config);
 var cache = {};
 var replyText = function (token, texts) {
+    // token expire in 30s
     texts = Array.isArray(texts) ? texts : [texts];
     console.log("sending " + texts);
     return client.replyMessage(token, texts.map(function (text) { return ({ type: 'text', text: text }); }));
@@ -339,13 +341,15 @@ function mintaId(pc) {
 }
 function testing(pc) {
     return __awaiter(this, void 0, void 0, function () {
-        var matches, number_1, replyToken_1;
+        var matchesText, number_1, replyToken_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    matches = pc.getMatches(/^tes \d+/);
-                    if (!(matches.length > 0)) return [3 /*break*/, 2];
-                    number_1 = parseInt(matches[0].split(" ")[1]) || 1;
+                    user_1.plus(1);
+                    console.log("uesrs: " + user_1._users);
+                    matchesText = pc.getMatchesText(/^tes \d+/);
+                    if (!(matchesText.length > 0)) return [3 /*break*/, 2];
+                    number_1 = parseInt(matchesText[0].split(" ")[1]) || 1;
                     console.log("number: " + number_1);
                     replyToken_1 = pc.dto.replyToken;
                     return [4 /*yield*/, new Promise(function (resolve) {
@@ -375,13 +379,13 @@ var processes = [
 ];
 var counter = 0;
 function chaining() {
-    counter += 1;
     return function run(dto) {
         return __awaiter(this, void 0, void 0, function () {
             var hrstart, pc, _i, processes_1, process_1, hrend, simple_text_messages;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
+                        counter += 1;
                         hrstart = process.hrtime();
                         console.log("counter: " + counter);
                         pc = new Pc(dto);
@@ -460,18 +464,18 @@ var Pc = /** @class */ (function () {
         var dto = this.dto;
         var message = dto.message;
         var text = message.text;
-        // let text = this.dto.messsage.text || "";
         return text ? text : null;
     };
     Pc.prototype.getMsg = function () {
         return this.dto.message;
     };
-    Pc.prototype.getMatches = function (re) {
+    Pc.prototype.getMatchesText = function (re) {
         var text = this.getMsgText() || "";
         return text.match(re) || [];
     };
     return Pc;
 }());
+exports.Pc = Pc;
 // export function switchHandle(load: any) {
 //   let message = load.message;
 //   switch (true) {
