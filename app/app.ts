@@ -113,7 +113,7 @@ app.post('/webhook', middleware(<MiddlewareConfig> config), (req, res) => {
   }
 
   // handle events separately
-  Promise.all(req.body.events.map(handle))
+  Promise.all(req.body.events.map(chaining()))
     .then((i) => {
       console.info("all handled");
     })
