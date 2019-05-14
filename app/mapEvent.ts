@@ -18,6 +18,7 @@ const client = new Client(<ClientConfig>config);
 const cache = {};
 
 const replyText = (token: string, texts: string | any[]) => {
+    // token expire in 30s
     texts = Array.isArray(texts) ? texts : [texts];
     console.log(`sending ${texts}`);
     return client.replyMessage(
@@ -325,9 +326,9 @@ async function mintaId(pc: Pc): Promise<Pc> {
 }
 
 async function testing(pc: Pc): Promise<Pc> {
-  let matches = pc.getMatches(/^tes \d+/);
-  if (matches.length > 0) {
-    let number = parseInt(matches[0].split(" ")[1]) || 1;
+  let matchesText = pc.getMatchesText(/^tes \d+/);
+  if (matchesText.length > 0) {
+    let number = parseInt(matchesText[0].split(" ")[1]) || 1;
     console.log(`number: ${number}`);
     let replyToken = pc.dto.replyToken;
     await new Promise((resolve) => {
@@ -358,8 +359,8 @@ const processes: Process[] = [
 
 let counter = 0;
 export function chaining() : Function {
-  counter+=1;
   return async function run(dto: any) {
+    counter+=1;
     let hrstart = process.hrtime();
     console.log("counter: " + counter);
     let pc: Pc = new Pc(dto);
@@ -399,7 +400,7 @@ export function chaining() : Function {
 
 interface Process{(dto:any) : Promise<any>;};
 
-class Pc {
+export class Pc {
   signal: {
     stop: boolean;
   } = {stop: false}
@@ -444,7 +445,6 @@ class Pc {
     let dto = this.dto;
     let message = dto.message;
     let text = message.text;
-    // let text = this.dto.messsage.text || "";
     return text ? text : null;
   }
 
@@ -452,7 +452,7 @@ class Pc {
     return this.dto.message;
   }
 
-  getMatches(re: RegExp): string[] {
+  getMatchesText(re: RegExp): string[] {
     let text = this.getMsgText() || "";
     return text.match(re) || [];
   }
