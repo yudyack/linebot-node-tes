@@ -64,7 +64,7 @@ async function getUser(pc: Pc): Promise<Pc> {
   console.log('pc 3');
   let userId = pc.webhookEventAll.source.userId;
   let groupSource = pc.webhookEventAll.groupSource;
-  console.log(pc);
+  console.log(pc.webhookEvent);
   console.log(`grou user: ${groupSource}, userid: ${userId}`);
   if (groupSource && userId) {
     let groupId = groupSource.groupId;
@@ -232,6 +232,7 @@ export class Pc {
     switch (webhookEventAll.type) {
       case "message":
         pc.messageEventAll = webhookEventAll;
+        this.mapEventSource(webhookEventAll);
         break;
       case "follow":
         pc.followEvent = webhookEventAll;
@@ -259,7 +260,8 @@ export class Pc {
     }
   }
 
-  mapEventSource(eventSource: EventSource, webhookEventAll: WebhookEventAll) {
+  mapEventSource(webhookEventAll: WebhookEventAll) {
+    let eventSource = webhookEventAll.source;
     switch (eventSource.type) {
       case "user":
         webhookEventAll.userSource = eventSource;

@@ -65,7 +65,8 @@ export namespace User {
   }
 
   // TODO: need fix for case get from group or user
-  export async function get(userId: string, groupId: string) {
+  // need more refactortinf ang logic
+  export async function get(userId: string, groupId: string | undefined) {
     let user = repo.get(userId) || null;
     if (user === null) {
       let users = await getUsersClient();
