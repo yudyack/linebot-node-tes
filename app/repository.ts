@@ -64,6 +64,7 @@ export namespace User {
     // closeDbClient();
   }
 
+  // TODO: need fix for case get from group or user
   export async function get(userId: string, groupId: string) {
     let user = repo.get(userId) || null;
     if (user === null) {
