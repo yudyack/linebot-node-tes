@@ -72,11 +72,11 @@ export namespace User {
       console.log("finding users");
       let result = users? await users.find({userId: userId}).toArray().catch(()=> console.warn("fail when finding user")): [];
       if (result == null) {
-        console.warn("can't get userClient");
+        console.error("can't get userClient");
       } else if (result.length == 0) {
         let userDoc = await getFromLine(userId).catch((i => null));
         userDoc = userDoc? userDoc : await getFromLine(userId, groupId).catch(i => null);
-        await insert(userDoc).catch(() => {console.warn("fail insert")});
+        await insert(userDoc).catch(() => {console.error("fail insert")});
       } else {
         user = result[0];
         console.log('user found', result);

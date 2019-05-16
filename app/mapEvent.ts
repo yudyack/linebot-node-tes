@@ -64,6 +64,8 @@ async function getUser(pc: Pc): Promise<Pc> {
   console.log('pc 3');
   let userId = pc.webhookEventAll.source.userId;
   let groupSource = pc.webhookEventAll.groupSource;
+  console.log(pc);
+  console.log(`grou user: ${groupSource}, userid: ${userId}`);
   if (groupSource && userId) {
     let groupId = groupSource.groupId;
     let user = await RepoUser.get(userId, groupId).catch(() => null);
