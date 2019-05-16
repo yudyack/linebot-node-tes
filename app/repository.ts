@@ -46,11 +46,11 @@ export namespace User {
   let repo = new Map<string, any>();
   let usersClient: Collection<any> | null;
 
-  // init();
+  init();
 
   async function init() {
     let users = await getUsersClient();
-    let result = users? await users.find().toArray().catch(()=>{throw "fail when finding user"}) : null;
+    let result = users? await users.find().toArray().catch(()=>{console.warn("fail when finding user")}) : null;
     if (result == null) {
       console.warn("cant' get userClient")
     } else if (result.length == 0) {
@@ -69,13 +69,13 @@ export namespace User {
     if (user === null) {
       let users = await getUsersClient();
       console.log("finding users");
-      let result = users? await users.find({userId: userId}).toArray().catch(()=>{throw "fail when finding user"}): null;
+      let result = users? await users.find({userId: userId}).toArray().catch(()=>{console.warn("fail when finding user")}): null;
       if (result == null ) {
         console.warn("can't get userClient");
       } else if (result != null && result.length == 0) {
         let userDoc = await getFromLine(userId).catch((i => null));
         userDoc = userDoc? userDoc : await getFromLine(userId, groupId).catch(i => null);
-        await insert(userDoc).catch(() => {throw "fail insert"});
+        await insert(userDoc).catch(() => {console.warn("fail insert")});
       } else {
         user = result[0];
         console.log('user found', result);
@@ -96,14 +96,14 @@ export namespace User {
     let profile =  await prom.catch((i)=> { 
       console.warn(i); 
       // return null;
-      throw "fail getprofile"
+      console.warn("fail getprofile");
     });
     return profile;
   }
 
   async function insert(user: any) {
     let usersClient = await getUsersClient().catch(i=> console.warn("users client is null"));
-    let result = usersClient? await usersClient.insert(user).catch(()=>{throw "error insert"}): null;
+    let result = usersClient? await usersClient.insert(user).catch(()=> console.warn("error insert")): null;
     if (result == null) {
       console.warn("insert fail")      
     } else {

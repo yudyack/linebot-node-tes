@@ -63,7 +63,7 @@ function first(pc) {
 function second(pc) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
-            if (!/.*/.test(pc.dto.type))
+            if (!/.*/.test(pc.webhookEvent.type))
                 return [2 /*return*/, pc];
             console.log('pc 2');
             pc.test.push(2);
@@ -73,18 +73,24 @@ function second(pc) {
 }
 function getUser(pc) {
     return __awaiter(this, void 0, void 0, function () {
-        var userId, groupId, user;
+        var userId, groupSource, groupId, user;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     console.log('pc 3');
-                    userId = pc.dto.source.userId;
-                    groupId = pc.dto.source.groupId;
+                    userId = pc.webhookEventAll.source.userId;
+                    groupSource = pc.webhookEventAll.groupSource;
+                    if (!(groupSource && userId)) return [3 /*break*/, 2];
+                    groupId = groupSource.groupId;
                     return [4 /*yield*/, repository_1.User.get(userId, groupId).catch(function () { return null; })];
                 case 1:
                     user = _a.sent();
                     console.log(user);
-                    return [2 /*return*/, pc];
+                    return [3 /*break*/, 3];
+                case 2:
+                    console.warn("can't get user");
+                    _a.label = 3;
+                case 3: return [2 /*return*/, pc];
             }
         });
     });
@@ -102,8 +108,8 @@ function mintaId(pc) {
         var text, replyToken;
         return __generator(this, function (_a) {
             text = pc.getMsgText() || "";
-            if ((/^minta id$/).test(text)) {
-                replyToken = pc.dto.replyToken;
+            if ((/^minta id$/).test(text) && pc.replyableEvent) {
+                replyToken = pc.replyableEvent.replyToken;
                 pc.addReplyMessage(pc.dto.source.userId);
             }
             return [2 /*return*/, pc];
@@ -117,10 +123,11 @@ function testing(pc) {
             switch (_a.label) {
                 case 0:
                     matchesText = pc.getMatchesText(/^tes \d+/);
-                    if (!(matchesText.length > 0)) return [3 /*break*/, 2];
+                    if (!(matchesText.length > 0)) return [3 /*break*/, 3];
                     number_1 = parseInt(matchesText[0].split(" ")[1]) || 1;
                     console.log("number: " + number_1);
-                    replyToken_1 = pc.dto.replyToken;
+                    if (!pc.replyableEvent) return [3 /*break*/, 2];
+                    replyToken_1 = pc.replyableEvent.replyToken;
                     return [4 /*yield*/, new Promise(function (resolve) {
                             setTimeout(function () {
                                 replyText(replyToken_1, "replied for " + number_1)
@@ -132,8 +139,11 @@ function testing(pc) {
                         })];
                 case 1:
                     _a.sent();
-                    _a.label = 2;
-                case 2: return [2 /*return*/, pc];
+                    return [3 /*break*/, 3];
+                case 2:
+                    console.warn("not an replyable event");
+                    _a.label = 3;
+                case 3: return [2 /*return*/, pc];
             }
         });
     });
@@ -185,7 +195,7 @@ function chaining() {
                         console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
                         simple_text_messages = pc.replyMessages.slice(0, 4);
                         // console.log(simple_text_messages);
-                        if (simple_text_messages.length > 0) {
+                        if (simple_text_messages.length > 0 && pc.isReplyable(pc.dto)) {
                             replyText(pc.dto.replyToken, simple_text_messages)
                                 .catch(function (i) {
                                 console.warn("fail reply msg: " + pc.replyMessages);
@@ -202,6 +212,7 @@ function chaining() {
 }
 exports.chaining = chaining;
 ;
+// TODO: more typing from line
 var Pc = /** @class */ (function () {
     function Pc(dto) {
         this.signal = { stop: false };
@@ -209,6 +220,11 @@ var Pc = /** @class */ (function () {
         this.idx = 0;
         this.replyMessages = [];
         this.dto = dto;
+        this.webhookEvent = dto;
+        this.webhookEventAll = dto;
+        this.replyableEvent = dto.replyToken ? dto : undefined;
+        this.mapEvent(this.webhookEventAll, this);
+        // this.mapEventSource(this.webhookEvent.source, this.webhookEvent);
     }
     Pc.prototype.prepare = function (pc) {
         this.processes = processes;
@@ -225,22 +241,67 @@ var Pc = /** @class */ (function () {
     Pc.prototype.putNext = function (callback) {
         this.put(this.idx, callback);
     };
+    Pc.prototype.mapEvent = function (webhookEventAll, pc) {
+        // let eventMessage = (<MessageEvent>webhookEvent).message;
+        switch (webhookEventAll.type) {
+            case "message":
+                pc.messageEventAll = webhookEventAll;
+                break;
+            case "follow":
+                pc.followEvent = webhookEventAll;
+                break;
+            case "unfollow":
+                pc.unfollowEvent = webhookEventAll;
+                break;
+            case "join":
+                pc.joinEvent = webhookEventAll;
+                break;
+            case "leave":
+                pc.leaveEvent = webhookEventAll;
+                break;
+            case "memberJoined":
+                pc.memberJoinEvent = webhookEventAll;
+                break;
+            case "memberLeft":
+                pc.memberLeaveEvent = webhookEventAll;
+                break;
+            case "postback":
+                pc.postbackEvent = webhookEventAll;
+                break;
+            default:
+                break;
+        }
+    };
+    Pc.prototype.mapEventSource = function (eventSource, webhookEventAll) {
+        switch (eventSource.type) {
+            case "user":
+                webhookEventAll.userSource = eventSource;
+                break;
+            case "group":
+                webhookEventAll.groupSource = eventSource;
+                break;
+            case "room":
+                webhookEventAll.roomSource = eventSource;
+                break;
+            default:
+                break;
+        }
+    };
     Pc.prototype.addReplyMessage = function (message) {
         this.replyMessages.push(message);
     };
     Pc.prototype.getMsgText = function () {
-        console.log(this.dto.message.text);
-        var dto = this.dto;
-        var message = dto.message;
-        var text = message.text;
-        return text ? text : null;
+        return this.getMsg().text || null;
     };
     Pc.prototype.getMsg = function () {
-        return this.dto.message;
+        return this.webhookEvent.message || null;
     };
     Pc.prototype.getMatchesText = function (re) {
         var text = this.getMsgText() || "";
         return text.match(re) || [];
+    };
+    Pc.prototype.isReplyable = function (dto) {
+        return dto.replyToken != undefined;
     };
     return Pc;
 }());

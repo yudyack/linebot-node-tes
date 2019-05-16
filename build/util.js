@@ -67,12 +67,19 @@ exports.setHostname = setHostname;
 // }
 // const { listTimeZones } = require('timezone-support')
 // console.log(listTimeZones());
-// process.on('uncaughtException', exceptionHandler);
-// process.on("exit", exitHandler);
+process.on("exit", exitHandler);
+process.on('uncaughtException', exceptionHandler);
+process.on('SIGINT', exceptionHandler);
+process.on('SIGUSR1', exceptionHandler);
+process.on('SIGUSR2', exceptionHandler);
 function exitHandler(code) {
+    console.log("adsf");
     repository_1.closeDbClient();
 }
 function exceptionHandler() {
-    repository_1.closeDbClient();
+    // console.log("asdf")
+    // closeDbClient();
+    // exitHandler(0);
+    process.exit();
 }
 //# sourceMappingURL=util.js.map
