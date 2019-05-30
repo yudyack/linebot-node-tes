@@ -23,38 +23,45 @@ export function addpc(pc: Pc) {
 }
 
 export function getLastCachePc(nowPc: Pc): Pc | undefined {
-  let cachePc = getOrUndefined(nowPc);
-  if (!cachePc) return undefined;
+  let pcs = getPcsOrUndefined(nowPc);
+  if (!pcs) return undefined;
 
-  let lastPc = cachePc.slice(-1)[0];
+  let lastPc = pcs.slice(-1)[0];
   return lastPc;
 }
 
 export function getIndexCachePc(nowPc: Pc, index: number): Pc | undefined {
-  let cachePc = getOrUndefined(nowPc);
-  if (!cachePc) return undefined;
+  let pcs = getPcsOrUndefined(nowPc);
+  if (!pcs) return undefined;
 
   index = Math.floor(index);
   if (index > 0) {
-    return cachePc[index];
+    return pcs[index];
   } else {
-    return cachePc[cachePc.length + index];
+    return pcs[pcs.length + index];
   }
 }
 
 export function getLastIndexCachePc(nowPc: Pc, lastIndex: number): Pc | undefined {
-  let cachePc = getOrUndefined(nowPc);
-  if (!cachePc) return undefined;
+  let pcs = getPcsOrUndefined(nowPc);
+  if (!pcs) return undefined;
 
   lastIndex = Math.floor(lastIndex);
   if (lastIndex > 0) {
-    return cachePc[cachePc.length - lastIndex];
+    return pcs[pcs.length - lastIndex];
   } else {
-    return cachePc[lastIndex*(-1)];
+    return pcs[lastIndex*(-1)];
   }
 }
 
-function getOrUndefined(pc: Pc): Pc[] | undefined{
+export function getCachedPcsLength(nowPc: Pc): number | undefined{
+  let pcs = getPcsOrUndefined(nowPc);
+  if (!pcs) return undefined;
+
+  return pcs.length;
+}
+
+function getPcsOrUndefined(pc: Pc): Pc[] | undefined{
   let idMap = cacheMapPcs.get(pc.eventSource.type);
   if (!idMap) return undefined;
 

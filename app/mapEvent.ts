@@ -34,7 +34,7 @@ export const handle = chaining();
 const client = new Client(<ClientConfig>config);
 const cache = {};
 import { Pc, processes } from "./pc";
-import { addpc, getLastCachePc, cacheMapPcs } from "./cacheChat";
+import { addpc, getLastCachePc, cacheMapPcs, getLastIndexCachePc, getCachedPcsLength } from "./cacheChat";
 import { SSL_OP_MSIE_SSLV2_RSA_PADDING } from "constants";
 
 const replyText = (token: string, texts: string | any[]) => {
@@ -120,15 +120,25 @@ async function testing(pc: Pc): Promise<Pc> {
 }
 
 async function spamLast(pc: Pc): Promise<Pc> {
-  let matchesText = pc.getMatchesTextLowerCase(/^last! \d+/);
-  console.log(matchesText);
+  let matchesText = pc.getMatchesTextLowerCase(/^last *\d* *\d*$/);
   if (matchesText.length > 0) {
     let number = parseInt(matchesText[0].split(" ")[1]) || 1;
-    let lastPc = getLastCachePc(pc);
+    let times = parseInt(matchesText[0].split(" ")[2]) || 1;
+    let lastPc: Pc | undefined;
+    let length = getCachedPcsLength(pc);
+    while (!lastPc && length && length > number) {
+      lastPc = getLastIndexCachePc(pc, number);
+      number +=1;
+      if (lastPc) {
+        let text = lastPc.getMsgText() || "";
+        let match = text.toLowerCase().match(/^last/) || [];
+        if(match.length > 0) lastPc = undefined;
+      }
+    }
     if(lastPc) {
       let text = lastPc.getMsgText();
       if (!text) return pc;
-      for (const i of Array(number).keys()) {
+      for (const i of Array(times).keys()) {
         pc.addReplyMessage(text)
       }
     }
@@ -175,8 +185,6 @@ export function chaining() : Function {
     }
     
     addpc(pc);
-    console.log(getLastCachePc(pc));
-    console.log(cacheMapPcs);
     let hrend = process.hrtime(hrstart);
     console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000)
     return ;
