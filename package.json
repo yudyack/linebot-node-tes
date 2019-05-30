@@ -31,7 +31,7 @@
     "request": "^2.88.0",
     "timezone-support": "^1.8.1",
     "ts-node-dev": "^1.0.0-pre.39",
-    "typescript": "^3.4.5",
+    "typescript": "^3.5.1",
     "vue": "^2.6.10"
   },
   "devDependencies": {

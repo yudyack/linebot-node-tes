@@ -13,21 +13,6 @@ import {
   TemplateMessage,
   WebhookEvent,
 
-  // webhook event objects
-  MessageEvent,
-  EventSource,
-  VideoEventMessage,
-
-  // message event objects
-  Message,
-  TemplateContent,
-  EventBase,
-  ReplyableEvent,
-  TextEventMessage,
-  ImageEventMessage,
-  AudioEventMessage,
-  LocationEventMessage,
-  StickerEventMessage,
   MiddlewareConfig,
   ClientConfig,
   Config,
@@ -43,6 +28,7 @@ import path           = require('path');
 import { config, dataAll, hostname, setHostname, loadEnv } from './util';
 import { handle, chaining } from './mapEvent';
 import { userInfo } from 'os';
+import { closeDbClient } from './repository';
 // Create a new express application instance
 const app: express.Application = express();
 
@@ -127,3 +113,21 @@ app.use('/static', express.static(path.join(__dirname,'../static')));
 app.listen(process.env.PORT, function () {
   console.log(`Example app listening on port ${process.env.PORT}!`);
 });
+
+process.on("exit", exitHandler);
+process.on('uncaughtException', exceptionHandler);
+process.on('SIGINT', exceptionHandler);
+process.on('SIGUSR1', exceptionHandler);
+process.on('SIGUSR2', exceptionHandler);
+
+function exitHandler(code: number) {
+    console.log("adsf")
+    closeDbClient();
+}
+
+function exceptionHandler() {
+    // console.log("asdf")
+    // closeDbClient();
+    // exitHandler(0);
+    process.exit();
+}

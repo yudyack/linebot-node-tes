@@ -25,7 +25,7 @@ import {
   ReplyableEvent,
   EventBase
 } from "@line/bot-sdk";
-import { config, hostname, client as $dbclient } from "./util";
+import { config, hostname, client as $dbclient, range } from "./util";
 import { promises } from "fs";
 import { User as RepoUser } from "./repository";
 
@@ -33,6 +33,8 @@ export const handle = chaining();
 
 const client = new Client(<ClientConfig>config);
 const cache = {};
+import { Pc, processes } from "./pc";
+import { addpc, getLastCachePc, cacheMapPcs } from "./cacheChat";
 
 const replyText = (token: string, texts: string | any[]) => {
     // token expire in 30s
@@ -116,16 +118,24 @@ async function testing(pc: Pc): Promise<Pc> {
   return pc;
 }
 
+async function spamLast(pc: Pc): Promise<Pc> {
+  let matchesText = pc.getMatchesText(/^last! \d+/);
+  if (matchesText.length > 0) {
+    let number = parseInt(matchesText[0].split(" ")[1]) || 1;
+    let lastPc = getLastCachePc(pc);
+    if(lastPc) {
+      let text = lastPc.getMsgText();
+      if (!text) return pc;
+      for (const i of Array(number).keys()) {
+        pc.addReplyMessage(text)
+      }
+    }
+  }
+  return pc;
+}
 
-const processes: Process[] = [
-  // first,
-  // second,
-  getUser,
-  // calc,
-  // mintaId,
-  testing
 
-]
+
 
 let counter = 0;
 export function chaining() : Function {
@@ -146,182 +156,40 @@ export function chaining() : Function {
           });
         if (pc.signal.stop) break;
       }
-      let hrend = process.hrtime(hrstart);
-      console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000)
       // TODO:
       // validating message to sent
-
+      
       let simple_text_messages = pc.replyMessages.slice(0,4);
       // console.log(simple_text_messages);
-
+      
       if (simple_text_messages.length > 0 && pc.isReplyable(pc.dto)) {
         replyText(pc.dto.replyToken, simple_text_messages)
-          .catch(i => {
-            console.warn("fail reply msg: " + pc.replyMessages);
-            // console.log(i);
-            return i;
+        .catch(i => {
+          console.warn("fail reply msg: " + pc.replyMessages);
+          // console.log(i);
+          return i;
         });
       }
     }
+    
+    addpc(pc);
+    console.log(getLastCachePc(pc));
+    console.log(cacheMapPcs);
+    let hrend = process.hrtime(hrstart);
+    console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000)
     return ;
   }
 }
 
+processes.push(
+  first,
+  second,
+  getUser,
+  testing,
+  spamLast,
+  mintaId,
 
-interface Process{(dto:any) : Promise<any>;};
+);
 
-// TODO: more typing from line
-export class Pc {
-  signal: {
-    stop: boolean;
-  } = {stop: false}
-  dto: EventBase;
-  processHistory: Process[] = [];
-  processes?: Process[];
-  now?: any;
-  test?: any;
-  foo?: any;
-  idx: number = 0;
-  replyMessages: any[] = [];
-  time?: number[];
+console.log(processes);
 
-  webhookEventAll: WebhookEventAll;
-  webhookEvent: WebhookEvent;
-  replyableEvent?: ReplyableEvent;
-  messageEventAll?: MessageEventAll;
-  followEvent?: FollowEvent;
-  unfollowEvent?: UnfollowEvent;
-  joinEvent?: JoinEvent;
-  leaveEvent?: LeaveEvent;
-  memberJoinEvent?: MemberJoinEvent;
-  memberLeaveEvent?: MemberLeaveEvent;
-  postbackEvent?: PostbackEvent;
-
-
-
-  
-  prepare (pc: Process): void {
-    this.processes = processes;
-    this.now = {
-      idx: ++this.idx,
-      name: pc.name
-    }
-    this.processHistory.push(pc);
-    this.time = process.hrtime();
-  }
-  
-  put (index: number, callback: Process): void {
-    processes.splice(index, 0, callback);
-  }
-
-  putNext (callback: Process): void {
-    this.put(this.idx, callback);
-  }
-
-  constructor(dto: any){
-    this.dto = <EventBase> dto;
-    this.webhookEvent = <WebhookEvent> dto;
-    this.webhookEventAll = <WebhookEventAll> dto;
-    this.replyableEvent = dto.replyToken? <ReplyableEvent> dto: undefined;
-    this.mapEvent(this.webhookEventAll, this);
-    // this.mapEventSource(this.webhookEvent.source, this.webhookEvent);
-  }
-
-  mapEvent(webhookEventAll: WebhookEventAll, pc: Pc) {
-    // let eventMessage = (<MessageEvent>webhookEvent).message;
-    switch (webhookEventAll.type) {
-      case "message":
-        pc.messageEventAll = webhookEventAll;
-        this.mapEventSource(webhookEventAll);
-        break;
-      case "follow":
-        pc.followEvent = webhookEventAll;
-        break;
-      case "unfollow":
-        pc.unfollowEvent = webhookEventAll;
-        break;
-      case "join":
-        pc.joinEvent = webhookEventAll;
-        break;
-      case "leave":
-        pc.leaveEvent = webhookEventAll;
-        break;
-      case "memberJoined":
-        pc.memberJoinEvent = webhookEventAll;
-        break;
-      case "memberLeft":
-        pc.memberLeaveEvent = webhookEventAll;
-        break;
-      case "postback":
-        pc.postbackEvent = webhookEventAll;
-        break;
-      default:
-        break;
-    }
-  }
-
-  mapEventSource(webhookEventAll: WebhookEventAll) {
-    let eventSource = webhookEventAll.source;
-    switch (eventSource.type) {
-      case "user":
-        webhookEventAll.userSource = eventSource;
-        break;
-      case "group":
-        webhookEventAll.groupSource = eventSource;
-        break;
-      case "room":
-        webhookEventAll.roomSource = eventSource;
-        break;
-      default:
-        break;
-    }
-  }
-
-  addReplyMessage(message: any): void {
-    this.replyMessages.push(message)
-  }
-
-  getMsgText(): string | null {
-    return (<TextEventMessage> this.getMsg()).text || null;
-  }
-
-  getMsg(): EventMessage | null{
-    return  (<MessageEvent> this.webhookEvent).message || null;
-  }
-
-  getMatchesText(re: RegExp): string[] {
-    let text = this.getMsgText() || "";
-    return text.match(re) || [];
-  }
-
-  isReplyable(dto: EventBase): dto is ReplyableEvent {
-    return (<ReplyableEvent> dto).replyToken != undefined;
-  }
-
-}
-
-type WebhookEventAll = {
-  userSource? : User;
-  groupSource? : Group;
-  roomSource? : Room;
-} & WebhookEvent;
-
-type MessageEventAll = {
-  textEventMessage?: TextEventMessage;
-  imageEventMessage?: ImageEventMessage;
-  videoEventMessage?: VideoEventMessage;
-} & MessageEvent;
-
-
-
-// export function switchHandle(load: any) {
-//   let message = load.message;
-//   switch (true) {
-//     case /.*/.test(message):
-//       first(load);
-//       break;
-//     case /.*/.test(message):
-//       second(load);
-//       break;
-//   }
-// }
