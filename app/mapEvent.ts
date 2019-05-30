@@ -95,7 +95,7 @@ async function mintaId(pc: Pc): Promise<Pc> {
 }
 
 async function testing(pc: Pc): Promise<Pc> {
-  let matchesText = pc.getMatchesText(/^tes \d+/);
+  let matchesText = pc.getMatchesTextLowerCase(/^tes \d+/);
   if (matchesText.length > 0) {
     let number = parseInt(matchesText[0].split(" ")[1]) || 1;
     console.log(`number: ${number}`);
