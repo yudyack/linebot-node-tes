@@ -35,6 +35,7 @@ const client = new Client(<ClientConfig>config);
 const cache = {};
 import { Pc, processes } from "./pc";
 import { addpc, getLastCachePc, cacheMapPcs } from "./cacheChat";
+import { SSL_OP_MSIE_SSLV2_RSA_PADDING } from "constants";
 
 const replyText = (token: string, texts: string | any[]) => {
     // token expire in 30s
@@ -119,7 +120,8 @@ async function testing(pc: Pc): Promise<Pc> {
 }
 
 async function spamLast(pc: Pc): Promise<Pc> {
-  let matchesText = pc.getMatchesText(/^last! \d+/);
+  let matchesText = pc.getMatchesTextLowerCase(/^last! \d+/);
+  console.log(matchesText);
   if (matchesText.length > 0) {
     let number = parseInt(matchesText[0].split(" ")[1]) || 1;
     let lastPc = getLastCachePc(pc);
@@ -160,7 +162,7 @@ export function chaining() : Function {
       // validating message to sent
       
       let simple_text_messages = pc.replyMessages.slice(0,4);
-      // console.log(simple_text_messages);
+      console.log(simple_text_messages);
       
       if (simple_text_messages.length > 0 && pc.isReplyable(pc.dto)) {
         replyText(pc.dto.replyToken, simple_text_messages)
