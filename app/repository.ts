@@ -1,4 +1,4 @@
-import { client as $dbclient, config } from "./util";
+import { client as $dbclient, config } from "./utilConfig";
 import { Client, ClientConfig, Profile } from "@line/bot-sdk";
 import { Collection, MongoClient } from "mongodb";
 

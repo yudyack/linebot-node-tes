@@ -25,7 +25,7 @@ import proxy          = require('express-http-proxy');
 import bodyParser     = require('body-parser');
 import path           = require('path');
 
-import { config, dataAll, hostname, setHostname, loadEnv } from './util';
+import { config, dataAll, hostname, setHostname, loadEnv } from './utilConfig';
 import { handle, chaining } from './mapEvent';
 import { userInfo } from 'os';
 import { closeDbClient } from './repository';
@@ -90,7 +90,7 @@ app.post('/webhook-mock', [bodyParser.json(), onlyLocalSimple], (req: express.Re
   res.status(200).end()
 });
 
-app.post('/webhook', middleware(<MiddlewareConfig> config), (req, res) => {
+app.post('/webhook1', middleware(<MiddlewareConfig> config), (req, res) => {
   
   let events: Array<WebhookEvent> = req.body.events // webhook event objects
   console.log(events);

@@ -1,47 +1,28 @@
 import {
   Client,
-  MiddlewareConfig,
-  TextEventMessage,
-  ImageEventMessage,
-  VideoEventMessage,
-  AudioEventMessage,
-  LocationEventMessage,
-  StickerEventMessage,
   ClientConfig,
-  WebhookEvent,
-  MessageEvent,
-  FollowEvent,
-  UnfollowEvent,
-  JoinEvent,
-  LeaveEvent,
-  MemberJoinEvent,
-  MemberLeaveEvent,
-  PostbackEvent,
-  EventSource,
-  User,
-  Group,
-  Room,
-  EventMessage,
-  ReplyableEvent,
-  EventBase
+  AudioMessage,
 } from "@line/bot-sdk";
-import { config, hostname, client as $dbclient, range } from "./util";
-import { promises } from "fs";
+import { config, hostname, client as $dbclient, range, textToSpeechClient, getIndVoices, fullHostname } from "./utilConfig";
+import { promises, writeFile } from "fs";
 import { User as RepoUser } from "./repository";
 
 export const handle = chaining();
 
-const client = new Client(<ClientConfig>config);
+const clientLine = new Client(<ClientConfig>config);
 const cache = {};
 import { Pc, processes } from "./pc";
-import { addpc, getLastCachePc, cacheMapPcs, getLastIndexCachePc, getCachedPcsLength } from "./cacheChat";
-import { SSL_OP_MSIE_SSLV2_RSA_PADDING } from "constants";
+import { addpc, getLastIndexCachePc, getCachedPcsLength } from "./cacheChat";
+import { SynthesizeSpeechRequest } from "@google-cloud/text-to-speech";
+var AudioContext = require('web-audio-api').AudioContext
+const Fdkaac = require("node-fdkaac").Fdkaac;
+
 
 const replyText = (token: string, texts: string | any[]) => {
     // token expire in 30s
     texts = Array.isArray(texts) ? texts : [texts];
     console.log(`sending ${texts}`);
-    return client.replyMessage(
+    return clientLine.replyMessage(
       token,
       texts.map((text) => ({ type: 'text', text }))
     );
@@ -146,7 +127,64 @@ async function spamLast(pc: Pc): Promise<Pc> {
   return pc;
 }
 
+async function textToSpeech(pc:Pc) {
+  let matchesText = pc.getMatchesTextLowerCase(/^v( \w+)*/g);
+  if (matchesText.length > 0) {
+    let wordstr = matchesText[0].substring(2);
 
+    let voices = await getIndVoices;
+    let chosenVoice = voices[0];
+    console.log(chosenVoice);
+
+    let data : SynthesizeSpeechRequest = {
+      input: {
+        text: wordstr
+      },
+      voice: {
+        languageCode: chosenVoice.languageCodes[0],
+        name: chosenVoice.name,
+      },
+      audioConfig: {
+        audioEncoding: "LINEAR16",
+      }
+    }
+
+    textToSpeechClient.synthesizeSpeech(data)
+      .then(response => {
+        console.log(response);
+        const [data] = response;
+        const buffer = data.audioContent;
+        const audioContext = new AudioContext();
+        
+        // audioContext.decodeAudioData(buffer)
+        //   .then(audio => {
+        //     console.log(audio.duration);
+        //   })
+        writeFile("./static/audio/test.wav", buffer, (err)=> {console.log(err)});
+        const encoder = new Fdkaac({
+          output: "./static/audio/test.m4a",
+          bitrate: 192
+        }).setBuffer(buffer);
+        encoder.encode()
+        .then(()=>{
+          console.log('encoded');
+          let replyableEvent = pc.replyableEvent;
+          if (replyableEvent) {
+            let token = replyableEvent.replyToken;
+            const audioMessage: AudioMessage = {
+              type: "audio",
+              originalContentUrl: `${fullHostname}/static/test.m4a`,
+              duration: 60000
+            }
+            clientLine.replyMessage(token, audioMessage)
+          }
+        })
+        
+
+      })
+  }
+  return pc;
+}
 
 
 let counter = 0;
@@ -172,7 +210,7 @@ export function chaining() : Function {
       // validating message to sent
       
       let simple_text_messages = pc.replyMessages.slice(0,4);
-      console.log(simple_text_messages);
+      // console.log(simple_text_messages);
       
       if (simple_text_messages.length > 0 && pc.isReplyable(pc.dto)) {
         replyText(pc.dto.replyToken, simple_text_messages)
@@ -194,11 +232,11 @@ export function chaining() : Function {
 processes.push(
   first,
   second,
-  getUser,
+  // getUser,
   testing,
   spamLast,
   mintaId,
-
+  textToSpeech,
 );
 
 console.log(processes);

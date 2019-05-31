@@ -3,6 +3,7 @@ import fs = require('fs');
 import { Config } from '@line/bot-sdk';
 import { MongoCallback, MongoClient } from 'mongodb';
 import * as mongo from 'mongodb';
+import textToSpeech = require('@google-cloud/text-to-speech');
 // const { formatToTimeZone } = require('date-fns-timezone')
 
 loadEnv();
@@ -29,6 +30,7 @@ export const client = () : Promise<MongoClient> => {
 import { closeDbClient } from './repository';
 
 
+
 // export const overrideLog = _overrideLog();
 console.log("util terpanggil");
 
@@ -43,9 +45,11 @@ export function loadData(): object {
 export const dataAll = loadData();
 
 export var hostname: String = '';
+export let fullHostname: String;
 
 export function setHostname(host:String) {
   hostname = host;
+  fullHostname = `https://${hostname}`;
 }
 
 export function * range ( start: number, end: number, step = 1 ) {
@@ -55,6 +59,34 @@ export function * range ( start: number, end: number, step = 1 ) {
     state += step;
   }
   return;
+}
+
+export const textToSpeechClient = new textToSpeech.default.TextToSpeechClient();
+let idVoices: voiceResponse[] = [];
+export const getIndVoices : Promise<voiceResponse[]> = new Promise((resolve, reject) => {
+  if (idVoices.length > 0) {
+    resolve(idVoices);
+  } else {
+    textToSpeechClient.listVoices({
+      languageCode: "id-ID"
+    })
+    .then((data: any) => {
+      idVoices = data[0]["voices"];
+      resolve(idVoices);
+    })
+    .catch((err)=> {
+      throw err
+      // reject(err);
+    })
+  }
+})
+
+
+export interface voiceResponse {
+  languageCodes:          string[];
+  name:                   string;
+  ssmlGender:             string;
+  naturalSampleRateHertz: number;
 }
 
 // export function db(callback: MongoCallback<MongoClient>){
