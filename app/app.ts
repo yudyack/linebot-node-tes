@@ -90,7 +90,7 @@ app.post('/webhook-mock', [bodyParser.json(), onlyLocalSimple], (req: express.Re
   res.status(200).end()
 });
 
-app.post('/webhook1', middleware(<MiddlewareConfig> config), (req, res) => {
+app.post('/webhook', middleware(<MiddlewareConfig> config), (req, res) => {
   
   let events: Array<WebhookEvent> = req.body.events // webhook event objects
   console.log(events);
