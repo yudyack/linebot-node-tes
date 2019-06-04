@@ -33,7 +33,7 @@ import { closeDbClient } from './repository';
 const app: express.Application = express();
 
 
-let proxing: boolean = false;
+const proxing: boolean = true;
 
 let webhook : string = "/webhook";
 let fakeWebhook: string = "/webhook1";
