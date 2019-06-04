@@ -4,7 +4,7 @@ import {
   AudioMessage,
 } from "@line/bot-sdk";
 import { config, hostname, client as $dbclient, range, textToSpeechClient, getIndVoices, fullHostname } from "./utilConfig";
-import { promises, writeFile } from "fs";
+import { promises, writeFile, write } from "fs";
 import { User as RepoUser } from "./repository";
 
 export const handle = chaining();
@@ -149,39 +149,45 @@ async function textToSpeech(pc:Pc) {
       }
     }
 
-    textToSpeechClient.synthesizeSpeech(data)
-      .then(response => {
-        console.log(response);
-        const [data] = response;
-        const buffer = data.audioContent;
-        const audioContext = new AudioContext();
-        
-        // audioContext.decodeAudioData(buffer)
-        //   .then(audio => {
-        //     console.log(audio.duration);
-        //   })
-        writeFile("./static/audio/test.wav", buffer, (err)=> {console.log(err)});
-        const encoder = new Fdkaac({
-          output: "./static/audio/test.m4a",
-          bitrate: 192
-        }).setBuffer(buffer);
-        encoder.encode()
-        .then(()=>{
-          console.log('encoded');
-          let replyableEvent = pc.replyableEvent;
-          if (replyableEvent) {
-            let token = replyableEvent.replyToken;
-            const audioMessage: AudioMessage = {
-              type: "audio",
-              originalContentUrl: `${fullHostname}/static/test.m4a`,
-              duration: 60000
-            }
-            clientLine.replyMessage(token, audioMessage)
-          }
-        })
-        
 
-      })
+    const [res_data] = await textToSpeechClient.synthesizeSpeech(data)
+    const buffer = res_data.audioContent;
+    await writeFile("./static/audio/test.wav", buffer, (err)=> {console.log(err)});
+    console.log("problem usng line audio mesasge");
+    pc.addReplyMessage(`Audio is at ${fullHostname}/static/test.wav`);
+
+
+    // await textToSpeechClient.synthesizeSpeech(data)
+    //   .then(async response => {
+    //     console.log(response);
+    //     const [res_data] = response;
+    //     const buffer = res_data.audioContent;
+    //     const audioContext = new AudioContext();
+    //     // audioContext.decodeAudioData(buffer)
+    //     //   .then(audio => {
+    //     //     console.log(audio.duration);
+    //     //   })
+    //     writeFile("./static/audio/test.wav", buffer, (err)=> {console.log(err)});
+    //     // // encode
+    //     // const encoder = new Fdkaac({
+    //     //   output: "./static/audio/test.m4a",
+    //     //   bitrate: 192
+    //     // }).setBuffer(buffer);
+    //     // await encoder.encode()
+    //     //   .then(()=>{
+    //     //     console.log('encoded');
+    //     //   })
+    //     // let replyableEvent = pc.replyableEvent;
+    //     // if (replyableEvent) {
+    //     //   let token = replyableEvent.replyToken;
+    //     //   const audioMessage: AudioMessage = {
+    //     //     type: "audio",
+    //     //     originalContentUrl: `${fullHostname}/static/test.m4a`,
+    //     //     duration: 30000
+    //     //   }
+    //     //   clientLine.replyMessage(token, audioMessage)
+    //     // }
+    //   })
   }
   return pc;
 }
