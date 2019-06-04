@@ -16,6 +16,9 @@ import { addpc, getLastIndexCachePc, getCachedPcsLength } from "./cacheChat";
 import { SynthesizeSpeechRequest } from "@google-cloud/text-to-speech";
 var AudioContext = require('web-audio-api').AudioContext
 const Fdkaac = require("node-fdkaac").Fdkaac;
+import { getAudioDurationInSeconds } from 'get-audio-duration';
+import { inspect, promisify } from 'util';
+import { addListener } from "cluster";
 
 
 const replyText = (token: string, texts: string | any[]) => {
@@ -128,9 +131,10 @@ async function spamLast(pc: Pc): Promise<Pc> {
 }
 
 async function textToSpeech(pc:Pc) {
-  let matchesText = pc.getMatchesTextLowerCase(/^v( \w+)*/g);
+  let matchesText = pc.getMatchesText(/^v( .*)+/g);
   if (matchesText.length > 0) {
     let wordstr = matchesText[0].substring(2);
+    console.log(wordstr);
 
     let voices = await getIndVoices;
     let chosenVoice = voices[0];
@@ -159,21 +163,28 @@ async function textToSpeech(pc:Pc) {
 
     textToSpeechClient.synthesizeSpeech(data)
       .then(async response => {
-        console.log(response);
+        console.log(inspect(response));
         const [res_data] = response;
         const buffer = res_data.audioContent;
 
-        const audioContext = new AudioContext();
-        await audioContext.decodeAudioData(buffer)
-          .then((audio: any) => {
-            console.log(audio.duration);
+        const audioContext = new AudioContext;
+        let {duration}: any = await new Promise((resolve, reject) => {
+          audioContext.decodeAudioData(buffer, (audio: any) => {
+            resolve(audio);
           })
+        })
+        if (duration < 30) {
+          duration += 1;
+        } else {
+          duration = 30;
+        }
 
-        writeFile("./static/audio/test.wav", buffer, (err)=> {console.log(err)});
+        let filename = (new Date()).toISOString() + (pc.replyableEvent? pc.replyableEvent!.replyToken : pc.getSourceOrgId);
+        writeFile(`./static/audio/${filename}.wav`, buffer, (err)=> {console.log(err)});
 
         // encode
         const encoder = new Fdkaac({
-          output: "./static/audio/test.m4a",
+          output: `./static/audio/${filename}.m4a`,
           bitrate: 192
         }).setBuffer(buffer);
 
@@ -188,8 +199,8 @@ async function textToSpeech(pc:Pc) {
           let token = replyableEvent.replyToken;
           const audioMessage: AudioMessage = {
             type: "audio",
-            originalContentUrl: `${fullHostname}/static/audio/test.m4a`,
-            duration: 30000
+            originalContentUrl: `${fullHostname}/static/audio/${filename}.m4a`,
+            duration: duration
           }
           clientLine.replyMessage(token, audioMessage)
         }
