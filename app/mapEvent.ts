@@ -155,18 +155,15 @@ async function textToSpeech(pc:Pc) {
 
       let decoded: any = await new Promise((resolve, reject) => {
         audioContext.decodeAudioData(file, (audio: any) => {
-          console.log(audio);
           resolve(audio);
         })
       })
       duration = decoded.duration;
-      console.log(duration);
 
     } else {
       console.log("file doesn't exist")
       let voices = await getIndVoices;
       let chosenVoice = voices[0];
-      console.log(chosenVoice);
       let data : SynthesizeSpeechRequest = {
         input: {
           text: wordstr
@@ -181,7 +178,6 @@ async function textToSpeech(pc:Pc) {
       }
       duration = await textToSpeechClient.synthesizeSpeech(data)
         .then(async response => {
-          console.log(inspect(response));
           const [res_data] = response;
           const buffer = res_data.audioContent;
 
