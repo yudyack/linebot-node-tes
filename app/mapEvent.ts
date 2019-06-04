@@ -135,7 +135,7 @@ async function textToSpeech(pc:Pc) {
   let matchesText = pc.getMatchesText(/^v( .*)+/g);
   if (matchesText.length > 0) {
     let wordstr = matchesText[0].substring(2);
-    const chosenVoidIndex = 0;
+    const chosenVoidIndex = 3;
     console.log(wordstr);
 
     let hash = createHash('md5');
@@ -165,13 +165,14 @@ async function textToSpeech(pc:Pc) {
     } else {
       console.log("file doesn't exist")
       let voices = await getIndVoices;
+      console.log(voices);
       let chosenVoice = voices[chosenVoidIndex];
       let data : SynthesizeSpeechRequest = {
         input: {
           text: wordstr
         },
         voice: {
-          languageCode: chosenVoice.languageCodes[0],
+          languageCode: chosenVoice.languageCodes[chosenVoidIndex],
           name: chosenVoice.name,
         },
         audioConfig: {
