@@ -150,44 +150,49 @@ async function textToSpeech(pc:Pc) {
     }
 
 
-    const [res_data] = await textToSpeechClient.synthesizeSpeech(data)
-    const buffer = res_data.audioContent;
-    await writeFile("./static/audio/test.wav", buffer, (err)=> {console.log(err)});
-    console.log("problem usng line audio mesasge");
-    pc.addReplyMessage(`Audio is at ${fullHostname}/static/audio/test.wav`);
+    // const [res_data] = await textToSpeechClient.synthesizeSpeech(data)
+    // const buffer = res_data.audioContent;
+    // await writeFile("./static/audio/test.wav", buffer, (err)=> {console.log(err)});
+    // console.log("problem usng line audio mesasge");
+    // pc.addReplyMessage(`Audio is at ${fullHostname}/static/audio/test.wav`);
 
 
-    // await textToSpeechClient.synthesizeSpeech(data)
-    //   .then(async response => {
-    //     console.log(response);
-    //     const [res_data] = response;
-    //     const buffer = res_data.audioContent;
-    //     const audioContext = new AudioContext();
-    //     // audioContext.decodeAudioData(buffer)
-    //     //   .then(audio => {
-    //     //     console.log(audio.duration);
-    //     //   })
-    //     writeFile("./static/audio/test.wav", buffer, (err)=> {console.log(err)});
-    //     // // encode
-    //     // const encoder = new Fdkaac({
-    //     //   output: "./static/audio/test.m4a",
-    //     //   bitrate: 192
-    //     // }).setBuffer(buffer);
-    //     // await encoder.encode()
-    //     //   .then(()=>{
-    //     //     console.log('encoded');
-    //     //   })
-    //     // let replyableEvent = pc.replyableEvent;
-    //     // if (replyableEvent) {
-    //     //   let token = replyableEvent.replyToken;
-    //     //   const audioMessage: AudioMessage = {
-    //     //     type: "audio",
-    //     //     originalContentUrl: `${fullHostname}/static/test.m4a`,
-    //     //     duration: 30000
-    //     //   }
-    //     //   clientLine.replyMessage(token, audioMessage)
-    //     // }
-    //   })
+    textToSpeechClient.synthesizeSpeech(data)
+      .then(async response => {
+        console.log(response);
+        const [res_data] = response;
+        const buffer = res_data.audioContent;
+
+        // const audioContext = new AudioContext();
+        // audioContext.decodeAudioData(buffer)
+        //   .then((audio: any) => {
+        //     console.log(audio.duration);
+        //   })
+
+        // writeFile("./static/audio/test.wav", buffer, (err)=> {console.log(err)});
+
+        // encode
+        const encoder = new Fdkaac({
+          output: "./static/audio/test.m4a",
+          bitrate: 192
+        }).setBuffer(buffer);
+        await encoder.encode()
+          .then(()=>{
+            console.log('encoded');
+          })
+
+        // rplying
+        let replyableEvent = pc.replyableEvent;
+        if (replyableEvent) {
+          let token = replyableEvent.replyToken;
+          const audioMessage: AudioMessage = {
+            type: "audio",
+            originalContentUrl: `${fullHostname}/static/test.m4a`,
+            duration: 30000
+          }
+          clientLine.replyMessage(token, audioMessage)
+        }
+      })
   }
   return pc;
 }
