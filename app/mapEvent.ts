@@ -32,6 +32,14 @@ const replyText = (token: string, texts: string | any[]) => {
     );
 };
 
+async function testHook(pc: Pc): Promise<Pc> {
+  if (pc.replyableEvent && pc.replyableEvent.replyToken.match(/^(.)\1*$/)) {
+    console.log("Test hook recieved: " + JSON.stringify(pc.getMsgText()));
+    pc.stop();
+  }
+  return pc;
+}
+
 async function first(pc: Pc): Promise<Pc>{
   console.log('pc 1');
   let arr = [1];
@@ -275,6 +283,7 @@ export function chaining() : Function {
 }
 
 processes.push(
+  testHook,
   first,
   second,
   // getUser,

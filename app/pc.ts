@@ -189,6 +189,9 @@ export class Pc {
         return this.eventSource.userId;
     }
   }
+  stop(){
+    this.signal.stop = true;
+  }
 }
 
 type WebhookEventAll = {
