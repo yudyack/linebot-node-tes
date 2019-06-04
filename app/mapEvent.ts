@@ -191,6 +191,7 @@ async function textToSpeech(pc:Pc) {
       duration = await textToSpeechClient.synthesizeSpeech(data)
         .then(async response => {
           const [res_data] = response;
+          console.log(response);
           const buffer = res_data.audioContent;
 
           //get duration
@@ -221,7 +222,7 @@ async function textToSpeech(pc:Pc) {
     console.log("pre duration", duration);
     duration = Math.floor(duration);
     if (duration < 30) {
-      duration += 1;
+      duration += 2;
     } else {
       duration = 30;
     }
