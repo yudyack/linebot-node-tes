@@ -33,6 +33,18 @@ import { closeDbClient } from './repository';
 const app: express.Application = express();
 
 
+let proxing: boolean = false;
+
+let webhook : string = "/webhook";
+let fakeWebhook: string = "/webhook1";
+if (proxing) {
+  let _t = webhook;
+  webhook = fakeWebhook;
+  fakeWebhook = _t;
+}
+
+
+
 function onlyLocalSimple(req: express.Request, res: express.Response, next: express.NextFunction) {
   let remote_address = req.header('remote_addr') || req.connection.remoteAddress;
   console.log(remote_address);
@@ -76,7 +88,7 @@ app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname, "../public/tes.html"))
 });
 
-app.use('/webhook1',proxy("https://servombak.free.beeceptor.com"));
+app.use(fakeWebhook,proxy("https://servombak.free.beeceptor.com"));
 
 app.post('/webhook-mock', [bodyParser.json(), onlyLocalSimple], (req: express.Request, res: express.Response) => {
   console.log(req.hostname)
@@ -90,7 +102,7 @@ app.post('/webhook-mock', [bodyParser.json(), onlyLocalSimple], (req: express.Re
   res.status(200).end()
 });
 
-app.post('/webhook', middleware(<MiddlewareConfig> config), (req, res) => {
+app.post(webhook, middleware(<MiddlewareConfig> config), (req, res) => {
   
   let events: Array<WebhookEvent> = req.body.events // webhook event objects
   console.log(events);
@@ -107,7 +119,7 @@ app.post('/webhook', middleware(<MiddlewareConfig> config), (req, res) => {
     })
   res.status(200).end()
 })
-app.get('/webhook', (req, res) => res.end(`I'm listening. Please access with POST.`));
+app.get(webhook, (req, res) => res.end(`I'm listening. Please access with POST.`));
 
 app.use('/static', express.static(path.join(__dirname,'../static')));
 
