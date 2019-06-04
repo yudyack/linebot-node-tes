@@ -179,7 +179,7 @@ async function textToSpeech(pc:Pc) {
           duration = 30;
         }
 
-        let filename = (new Date()).toISOString() + (pc.replyableEvent? pc.replyableEvent!.replyToken : pc.getSourceOrgId);
+        let filename = (new Date()).toISOString() + pc.getSourceOrgId();
         writeFile(`./static/audio/${filename}.wav`, buffer, (err)=> {console.log(err)});
 
         // encode
