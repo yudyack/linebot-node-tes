@@ -172,7 +172,7 @@ async function textToSpeech(pc:Pc) {
           text: wordstr
         },
         voice: {
-          languageCode: chosenVoice.languageCodes[chosenVoidIndex],
+          languageCode: chosenVoice.languageCodes[0],
           name: chosenVoice.name,
         },
         audioConfig: {
