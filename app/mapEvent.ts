@@ -18,7 +18,8 @@ var AudioContext = require('web-audio-api').AudioContext
 const Fdkaac = require("node-fdkaac").Fdkaac;
 import { getAudioDurationInSeconds } from 'get-audio-duration';
 import { inspect, promisify } from 'util';
-import { addListener } from "cluster";
+import { Hash, createHash } from "crypto";
+import * as fs from "fs";
 
 
 const replyText = (token: string, texts: string | any[]) => {
@@ -136,75 +137,96 @@ async function textToSpeech(pc:Pc) {
     let wordstr = matchesText[0].substring(2);
     console.log(wordstr);
 
-    let voices = await getIndVoices;
-    let chosenVoice = voices[0];
-    console.log(chosenVoice);
+    let hash = createHash('md5');
+    let filename = hash.update(wordstr).digest('base64');
+    let duration: number;
+    let file: Buffer | null;
 
-    let data : SynthesizeSpeechRequest = {
-      input: {
-        text: wordstr
-      },
-      voice: {
-        languageCode: chosenVoice.languageCodes[0],
-        name: chosenVoice.name,
-      },
-      audioConfig: {
-        audioEncoding: "LINEAR16",
-      }
+    try {
+      file = fs.readFileSync(`./static/audio/${filename}.m4a`);
+    } catch (e) {
+      file = null
     }
 
+    if (file) {
+      console.log("file exists")
+      // get duration
+      const audioContext = new AudioContext;
 
-    // const [res_data] = await textToSpeechClient.synthesizeSpeech(data)
-    // const buffer = res_data.audioContent;
-    // await writeFile("./static/audio/test.wav", buffer, (err)=> {console.log(err)});
-    // console.log("problem usng line audio mesasge");
-    // pc.addReplyMessage(`Audio is at ${fullHostname}/static/audio/test.wav`);
-
-
-    textToSpeechClient.synthesizeSpeech(data)
-      .then(async response => {
-        console.log(inspect(response));
-        const [res_data] = response;
-        const buffer = res_data.audioContent;
-
-        const audioContext = new AudioContext;
-        let {duration}: any = await new Promise((resolve, reject) => {
-          audioContext.decodeAudioData(buffer, (audio: any) => {
-            resolve(audio);
-          })
+      let decoded: any = await new Promise((resolve, reject) => {
+        audioContext.decodeAudioData(file, (audio: any) => {
+          console.log(audio);
+          resolve(audio);
         })
-        if (duration < 30) {
-          duration += 1;
-        } else {
-          duration = 30;
+      })
+      duration = decoded.duration;
+      console.log(duration);
+
+    } else {
+      console.log("file doesn't exist")
+      let voices = await getIndVoices;
+      let chosenVoice = voices[0];
+      console.log(chosenVoice);
+      let data : SynthesizeSpeechRequest = {
+        input: {
+          text: wordstr
+        },
+        voice: {
+          languageCode: chosenVoice.languageCodes[0],
+          name: chosenVoice.name,
+        },
+        audioConfig: {
+          audioEncoding: "LINEAR16",
         }
+      }
+      duration = await textToSpeechClient.synthesizeSpeech(data)
+        .then(async response => {
+          console.log(inspect(response));
+          const [res_data] = response;
+          const buffer = res_data.audioContent;
 
-        let filename = (new Date()).toISOString() + pc.getSourceOrgId();
-        writeFile(`./static/audio/${filename}.wav`, buffer, (err)=> {console.log(err)});
+          //get duration
+          const audioContext = new AudioContext;
+          let decoded: any = await new Promise((resolve, reject) => {
+            audioContext.decodeAudioData(buffer, (audio: any) => {
+              resolve(audio);
+            })
+          })
+          const duration:number = decoded.duration;
 
-        // encode
-        const encoder = new Fdkaac({
-          output: `./static/audio/${filename}.m4a`,
-          bitrate: 192
-        }).setBuffer(buffer);
+          // encode and save
+          const encoder = new Fdkaac({
+            output: `./static/audio/${filename}.m4a`,
+            bitrate: 192
+          }).setBuffer(buffer);
 
-        await encoder.encode()
+          await encoder.encode()
           .then(()=>{
             console.log('encoded');
           })
+          
+          console.log(duration);
+          return duration;
+        })
+    }
 
-        // rplying
-        let replyableEvent = pc.replyableEvent;
-        if (replyableEvent) {
-          let token = replyableEvent.replyToken;
-          const audioMessage: AudioMessage = {
-            type: "audio",
-            originalContentUrl: `${fullHostname}/static/audio/${filename}.m4a`,
-            duration: duration
-          }
-          clientLine.replyMessage(token, audioMessage)
-        }
-      })
+    // rplying
+    if (duration < 30) {
+      duration += 1;
+    } else {
+      duration = 30;
+    }
+    duration = Math.round(duration);
+    let replyableEvent = pc.replyableEvent;
+    if (replyableEvent) {
+      let token = replyableEvent.replyToken;
+      const audioMessage: AudioMessage = {
+        type: "audio",
+        originalContentUrl: `${fullHostname}/static/audio/${filename}.m4a`,
+        duration: duration
+      }
+      clientLine.replyMessage(token, audioMessage)
+    }
   }
   return pc;
 }
