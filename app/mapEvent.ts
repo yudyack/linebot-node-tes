@@ -202,18 +202,19 @@ async function textToSpeech(pc:Pc) {
             console.log('encoded');
           })
           
-          console.log(duration);
           return duration;
         })
     }
 
     // rplying
+    console.log("pre duration", duration);
+    duration = Math.floor(duration);
     if (duration < 30) {
       duration += 1;
     } else {
       duration = 30;
     }
-    duration = Math.round(duration);
+    console.log("finale duration", duration);
     let replyableEvent = pc.replyableEvent;
     if (replyableEvent) {
       let token = replyableEvent.replyToken;
