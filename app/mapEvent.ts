@@ -154,7 +154,7 @@ async function textToSpeech(pc:Pc) {
     const buffer = res_data.audioContent;
     await writeFile("./static/audio/test.wav", buffer, (err)=> {console.log(err)});
     console.log("problem usng line audio mesasge");
-    pc.addReplyMessage(`Audio is at ${fullHostname}/static/test.wav`);
+    pc.addReplyMessage(`Audio is at ${fullHostname}/static/audio/test.wav`);
 
 
     // await textToSpeechClient.synthesizeSpeech(data)
