@@ -107,6 +107,7 @@ app.post('/webhook', middleware(<MiddlewareConfig> config), (req, res) => {
     })
   res.status(200).end()
 })
+app.get('/webhook', (req, res) => res.end(`I'm listening. Please access with POST.`));
 
 app.use('/static', express.static(path.join(__dirname,'../static')));
 
