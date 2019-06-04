@@ -138,7 +138,8 @@ async function textToSpeech(pc:Pc) {
     console.log(wordstr);
 
     let hash = createHash('md5');
-    let filename = hash.update(wordstr).digest('base64');
+    let filename = hash.update(wordstr).digest('hex');
+      
     let duration: number;
     let file: Buffer | null;
 
