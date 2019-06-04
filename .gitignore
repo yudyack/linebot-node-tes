@@ -70,3 +70,4 @@ typings/
 # build
 build/
 credentials/
+static/audio/
