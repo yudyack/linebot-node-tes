@@ -143,7 +143,7 @@ async function textToSpeech(pc:Pc) {
   let matchesText = pc.getMatchesText(/^v( .*)+/g);
   if (matchesText.length > 0) {
     let wordstr = matchesText[0].substring(2);
-    const chosenVoidIndex = 3;
+    const chosenVoidIndex = 2;
     console.log(wordstr);
 
     let hash = createHash('md5');
@@ -182,6 +182,7 @@ async function textToSpeech(pc:Pc) {
         voice: {
           languageCode: chosenVoice.languageCodes[0],
           name: chosenVoice.name,
+
         },
         audioConfig: {
           audioEncoding: "LINEAR16",
