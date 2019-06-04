@@ -163,19 +163,20 @@ async function textToSpeech(pc:Pc) {
         const [res_data] = response;
         const buffer = res_data.audioContent;
 
-        // const audioContext = new AudioContext();
-        // audioContext.decodeAudioData(buffer)
-        //   .then((audio: any) => {
-        //     console.log(audio.duration);
-        //   })
+        const audioContext = new AudioContext();
+        await audioContext.decodeAudioData(buffer)
+          .then((audio: any) => {
+            console.log(audio.duration);
+          })
 
-        // writeFile("./static/audio/test.wav", buffer, (err)=> {console.log(err)});
+        writeFile("./static/audio/test.wav", buffer, (err)=> {console.log(err)});
 
         // encode
         const encoder = new Fdkaac({
           output: "./static/audio/test.m4a",
           bitrate: 192
         }).setBuffer(buffer);
+
         await encoder.encode()
           .then(()=>{
             console.log('encoded');
@@ -187,7 +188,7 @@ async function textToSpeech(pc:Pc) {
           let token = replyableEvent.replyToken;
           const audioMessage: AudioMessage = {
             type: "audio",
-            originalContentUrl: `${fullHostname}/static/test.m4a`,
+            originalContentUrl: `${fullHostname}/static/audio/test.m4a`,
             duration: 30000
           }
           clientLine.replyMessage(token, audioMessage)
