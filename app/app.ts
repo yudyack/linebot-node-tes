@@ -54,6 +54,7 @@ function onlyLocalSimple(req: express.Request, res: express.Response, next: expr
 
 app.use(function sethost(req, res, next) {
   setHostname(req.hostname);
+  console.log(req.hostname);
   next();
 })
 
