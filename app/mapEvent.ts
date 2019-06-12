@@ -20,6 +20,7 @@ import { getAudioDurationInSeconds } from 'get-audio-duration';
 import { inspect, promisify } from 'util';
 import { Hash, createHash } from "crypto";
 import * as fs from "fs";
+import { decode } from "punycode";
 
 
 const replyText = (token: string, texts: string | any[]) => {
@@ -188,34 +189,60 @@ async function textToSpeech(pc:Pc) {
           audioEncoding: "LINEAR16",
         }
       }
-      duration = await textToSpeechClient.synthesizeSpeech(data)
-        .then(async response => {
-          const [res_data] = response;
-          console.log(response);
-          const buffer = res_data.audioContent;
 
-          //get duration
-          const audioContext = new AudioContext;
-          let decoded: any = await new Promise((resolve, reject) => {
-            audioContext.decodeAudioData(buffer, (audio: any) => {
-              resolve(audio);
-            })
-          })
-          const duration:number = decoded.duration;
+      const response =  await textToSpeechClient.synthesizeSpeech(data);
+      const [res_data] = response;
+      console.log(response)
+      const buffer  = res_data.audioContent;
 
-          // encode and save
-          const encoder = new Fdkaac({
-            output: `./static/audio/${filename}.m4a`,
-            bitrate: 192
-          }).setBuffer(buffer);
-
-          await encoder.encode()
-          .then(()=>{
-            console.log('encoded');
-          })
-          
-          return duration;
+      // get duration
+      const audioContext = new AudioContext;
+      let decoded: any = await new Promise((resolve, reject) => {
+        audioContext.decodeAudioData(buffer, (audio: any) => {
+          resolve(audio);
         })
+      })
+      duration = decoded.duration;
+      // encode and save
+      const encoder = new Fdkaac({
+        output: `./static/audio/${filename}.m4a`,
+        bitrate: 192
+      }).setBuffer(buffer);
+      await encoder.encode()
+        .then(()=>{
+          console.log('encoded');
+      })
+      
+          
+
+      // duration = await textToSpeechClient.synthesizeSpeech(data)
+      //   .then(async response => {
+      //     const [res_data] = response;
+      //     console.log(response);
+      //     const buffer = res_data.audioContent;
+
+      //     //get duration
+      //     const audioContext = new AudioContext;
+      //     let decoded: any = await new Promise((resolve, reject) => {
+      //       audioContext.decodeAudioData(buffer, (audio: any) => {
+      //         resolve(audio);
+      //       })
+      //     })
+      //     const duration:number = decoded.duration;
+
+      //     // encode and save
+      //     const encoder = new Fdkaac({
+      //       output: `./static/audio/${filename}.m4a`,
+      //       bitrate: 192
+      //     }).setBuffer(buffer);
+
+      //     await encoder.encode()
+      //     .then(()=>{
+      //       console.log('encoded');
+      //     })
+          
+      //     return duration;
+      //   })
     }
 
     // rplying
