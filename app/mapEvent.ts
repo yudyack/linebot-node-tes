@@ -213,36 +213,6 @@ async function textToSpeech(pc:Pc) {
           console.log('encoded');
       })
       
-          
-
-      // duration = await textToSpeechClient.synthesizeSpeech(data)
-      //   .then(async response => {
-      //     const [res_data] = response;
-      //     console.log(response);
-      //     const buffer = res_data.audioContent;
-
-      //     //get duration
-      //     const audioContext = new AudioContext;
-      //     let decoded: any = await new Promise((resolve, reject) => {
-      //       audioContext.decodeAudioData(buffer, (audio: any) => {
-      //         resolve(audio);
-      //       })
-      //     })
-      //     const duration:number = decoded.duration;
-
-      //     // encode and save
-      //     const encoder = new Fdkaac({
-      //       output: `./static/audio/${filename}.m4a`,
-      //       bitrate: 192
-      //     }).setBuffer(buffer);
-
-      //     await encoder.encode()
-      //     .then(()=>{
-      //       console.log('encoded');
-      //     })
-          
-      //     return duration;
-      //   })
     }
 
     // rplying
