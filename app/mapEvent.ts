@@ -21,6 +21,7 @@ import { inspect, promisify } from 'util';
 import { Hash, createHash } from "crypto";
 import * as fs from "fs";
 import { decode } from "punycode";
+import { resolve } from "path";
 
 
 const replyText = (token: string, texts: string | any[]) => {
@@ -212,7 +213,12 @@ async function textToSpeech(pc:Pc) {
         .then(()=>{
           console.log('encoded');
       })
-      
+
+      await new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve(true);
+        }, 500)
+      })
     }
 
     // rplying

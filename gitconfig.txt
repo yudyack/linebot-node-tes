@@ -1,0 +1,16 @@
+credential.helper=osxkeychain
+user.email=yudhyapatriaw@gmail.com
+core.repositoryformatversion=0
+core.filemode=true
+core.bare=false
+core.logallrefupdates=true
+core.ignorecase=true
+core.precomposeunicode=true
+remote.origin.url=https://github.com/yudyack/linebot-node-tes.git
+remote.origin.fetch=+refs/heads/*:refs/remotes/origin/*
+branch.master.remote=origin
+branch.master.merge=refs/heads/master
+remote.deploy.url=ssh://root@209.97.167.243/root/deploy-folder/linebot-node-tes.git
+remote.deploy.fetch=+refs/heads/*:refs/remotes/deploy/*
+remote.lol.url=/Users/yudhyawicaksono/Documents/playground/test-dir/linebot-node-tes.git
+remote.lol.fetch=+refs/heads/*:refs/remotes/lol/*
