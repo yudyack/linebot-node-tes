@@ -205,8 +205,10 @@ async function textToSpeech(pc:Pc) {
       })
       duration = decoded.duration;
       // encode and save
+      const audioPath = `${rootPath}/audio/${filename}.m4a`;
+      console.log(audioPath);
       const encoder = new Fdkaac({
-        output: `${rootPath}/audio/${filename}.m4a`,
+        output: audioPath,
         bitrate: 192
       }).setBuffer(buffer);
       await encoder.encode()
