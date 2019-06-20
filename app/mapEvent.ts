@@ -3,7 +3,7 @@ import {
   ClientConfig,
   AudioMessage,
 } from "@line/bot-sdk";
-import { config, hostname, client as $dbclient, range, textToSpeechClient, getIndVoices, fullHostname } from "./utilConfig";
+import { config, hostname, client as $dbclient, range, textToSpeechClient, getIndVoices, fullHostname, rootPath } from "./utilConfig";
 import { promises, writeFile, write } from "fs";
 import { User as RepoUser } from "./repository";
 
@@ -206,7 +206,7 @@ async function textToSpeech(pc:Pc) {
       duration = decoded.duration;
       // encode and save
       const encoder = new Fdkaac({
-        output: `./audio/${filename}.m4a`,
+        output: `${rootPath}/audio/${filename}.m4a`,
         bitrate: 192
       }).setBuffer(buffer);
       await encoder.encode()

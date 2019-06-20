@@ -25,7 +25,7 @@ import proxy          = require('express-http-proxy');
 import bodyParser     = require('body-parser');
 import path           = require('path');
 
-import { config, dataAll, hostname, setHostname, loadEnv } from './utilConfig';
+import { config, dataAll, hostname, setHostname, loadEnv, rootPath } from './utilConfig';
 import { handle, chaining } from './mapEvent';
 import { userInfo } from 'os';
 import { closeDbClient } from './repository';
@@ -126,7 +126,7 @@ app.use('/static', express.static(path.join(__dirname,'../static')));
 
 app.get('/getAudio/:name', (req, res) => {
   const name = req.params.name;
-  const path = `${process.env.HOME_DIR}audio/${name}.m4a`;
+  const path = `${rootPath}/audio/${name}.m4a`;
   console.log(path);
   res.sendFile(path, (err: Error) => {
     // console.error(err.message);

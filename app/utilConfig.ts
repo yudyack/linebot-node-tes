@@ -8,9 +8,10 @@ import textToSpeech = require('@google-cloud/text-to-speech');
 
 loadEnv();
 export function loadEnv(): void {
-  process.env.HOME_DIR = path.resolve(__dirname, '../') + "/";
-  require('dotenv').config({path:process.env.HOME_DIR+".env"});
+  process.env.HOME_DIR = path.resolve(__dirname, '../');
+  require('dotenv').config({path:process.env.HOME_DIR+"/.env"});
 }
+export const rootPath = process.env.HOME_DIR;
 
 export const config: Config = {
   channelAccessToken: <string> process.env.CHANNEL_ACCESS_TOKEN,
@@ -35,7 +36,7 @@ import { closeDbClient } from './repository';
 console.log("util terpanggil");
 
 export function loadData(): object {
-  const raw = fs.readFileSync(process.env.HOME_DIR+'data.json');
+  const raw = fs.readFileSync(process.env.HOME_DIR+'/data.json');
   const dataAll = JSON.parse(raw.toString());
 
   return dataAll;
