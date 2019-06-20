@@ -72,3 +72,4 @@ build/
 credentials/
 static/audio/
 audio/*
+!audio/readme.md
