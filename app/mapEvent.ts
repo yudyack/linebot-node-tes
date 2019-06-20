@@ -155,7 +155,7 @@ async function textToSpeech(pc:Pc) {
     let file: Buffer | null;
 
     try {
-      file = fs.readFileSync(`./static/audio/${filename}.m4a`);
+      file = fs.readFileSync(`./audio/${filename}.m4a`);
     } catch (e) {
       file = null
     }
@@ -206,18 +206,12 @@ async function textToSpeech(pc:Pc) {
       duration = decoded.duration;
       // encode and save
       const encoder = new Fdkaac({
-        output: `./static/audio/${filename}.m4a`,
+        output: `./audio/${filename}.m4a`,
         bitrate: 192
       }).setBuffer(buffer);
       await encoder.encode()
         .then(()=>{
           console.log('encoded');
-      })
-
-      await new Promise((resolve, reject) => {
-        setTimeout(() => {
-          resolve(true);
-        }, 500)
       })
     }
 
@@ -235,10 +229,14 @@ async function textToSpeech(pc:Pc) {
       let token = replyableEvent.replyToken;
       const audioMessage: AudioMessage = {
         type: "audio",
-        originalContentUrl: `${fullHostname}/static/audio/${filename}.m4a`,
+        originalContentUrl: `${fullHostname}/getAudio/${filename}`,
         duration: duration
       }
       clientLine.replyMessage(token, audioMessage)
+      .catch((err) => {
+        console.log(`error sending audio reply: ${wordstr}`)
+        // console.log(err.message);
+      })
     }
   }
   return pc;

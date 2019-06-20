@@ -124,6 +124,15 @@ app.get(webhook, (req, res) => res.end(`I'm listening. Please access with POST.`
 
 app.use('/static', express.static(path.join(__dirname,'../static')));
 
+app.get('/getAudio/:name', (req, res) => {
+  const name = req.params.name;
+  const path = `${process.env.HOME_DIR}audio/${name}.m4a`;
+  console.log(path);
+  res.sendFile(path, (err: Error) => {
+    // console.error(err.message);
+  })
+})
+
 app.listen(process.env.PORT, function () {
   console.log(`Example app listening on port ${process.env.PORT}!`);
 });
@@ -135,12 +144,12 @@ process.on('SIGUSR1', exceptionHandler);
 process.on('SIGUSR2', exceptionHandler);
 
 function exitHandler(code: number) {
-    console.log("adsf")
+    console.log("exit")
     closeDbClient();
 }
 
 function exceptionHandler() {
-    // console.log("asdf")
+    console.log("exception")
     // closeDbClient();
     // exitHandler(0);
     process.exit();

@@ -71,3 +71,4 @@ typings/
 build/
 credentials/
 static/audio/
+audio/
