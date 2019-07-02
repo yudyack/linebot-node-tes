@@ -26,6 +26,7 @@ export class StateMachine<S> {
     }
     let nextState = this.getNext(input);
     
+    // need fix this for each state?
     if(nextState !== undefined) {
       this.current = nextState;
     } else {
