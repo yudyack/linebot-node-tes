@@ -6,6 +6,7 @@ import * as mongo from 'mongodb';
 import textToSpeech = require('@google-cloud/text-to-speech');
 // const { formatToTimeZone } = require('date-fns-timezone')
 
+// load .env
 loadEnv();
 export function loadEnv(): void {
   process.env.HOME_DIR = path.resolve(__dirname, '../');
@@ -13,11 +14,13 @@ export function loadEnv(): void {
 }
 export const rootPath = process.env.HOME_DIR;
 
-export const config: Config = {
+// config client line
+export const configLine: Config = {
   channelAccessToken: <string> process.env.CHANNEL_ACCESS_TOKEN,
   channelSecret: <string> process.env.CHANNEL_SECRET
 }
 
+// config client mongodb
 export const client = () : Promise<MongoClient> => {
   console.log(process.env.CONNECTIONDB)
   return mongo.connect(process.env.CONNECTIONDB?
@@ -28,40 +31,41 @@ export const client = () : Promise<MongoClient> => {
   })
 }
 
-import { closeDbClient } from './repository';
+// import { closeDbClient } from './repository';
 
 
 
 // export const overrideLog = _overrideLog();
 console.log("util terpanggil");
 
+// load data json
 export function loadData(): object {
   const raw = fs.readFileSync(process.env.HOME_DIR+'/data.json');
   const dataAll = JSON.parse(raw.toString());
 
   return dataAll;
 }
-
-
 export const dataAll = loadData();
 
 export var hostname: String = '';
 export let fullHostname: String;
 
+// set host domain
 export function setHostname(host:String) {
   hostname = host;
   fullHostname = `https://${hostname}`;
 }
 
-export function * range ( start: number, end: number, step = 1 ) {
-  let state = start;
-  while ( state < end ) {
-    yield state;
-    state += step;
-  }
-  return;
-}
+// export function * range ( start: number, end: number, step = 1 ) {
+//   let state = start;
+//   while ( state < end ) {
+//     yield state;
+//     state += step;
+//   }
+//   return;
+// }
 
+// Text to Speech conf
 export const textToSpeechClient = new textToSpeech.default.TextToSpeechClient();
 let idVoices: voiceResponse[] = [];
 export const getIndVoices : Promise<voiceResponse[]> = new Promise((resolve, reject) => {
@@ -81,8 +85,6 @@ export const getIndVoices : Promise<voiceResponse[]> = new Promise((resolve, rej
     })
   }
 })
-
-
 export interface voiceResponse {
   languageCodes:          string[];
   name:                   string;

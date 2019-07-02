@@ -20,8 +20,13 @@ import {
   EventSource
 } from "@line/bot-sdk";
 
+// type PcHandler = (pc:Pc) => Promise<Pc>;
 
-export let processes: Process[] = [
+interface PcHandler {
+  (pc:Pc): Promise<Pc>;
+}
+
+export let processes: PcHandler[] = [
   // first,
   // second,
   // getUser,
@@ -60,9 +65,8 @@ export class Pc {
   memberLeaveEvent?: MemberLeaveEvent;
   postbackEvent?: PostbackEvent;
   eventSource: EventSource;
-
-
-
+  chatId: string;
+  userId?: string;
   
   prepare (pc: Process): void {
     this.processes = processes;
@@ -90,6 +94,8 @@ export class Pc {
     this.eventSource = dto.source;
     this.mapEvent(this.webhookEventAll, this);
     // this.mapEventSource(this.webhookEvent.source, this.webhookEvent);
+    this.chatId = this.initiateGetChatId();
+    this.userId = this.getSourceUserId();
   }
 
   mapEvent(webhookEventAll: WebhookEventAll, pc: Pc) {
@@ -168,7 +174,11 @@ export class Pc {
     return (<ReplyableEvent> dto).replyToken != undefined;
   }
 
-  getSourceOrgId() {
+  getChatId(): string {
+    return this.chatId;
+  }
+
+  initiateGetChatId(): string {
     switch (this.eventSource.type) {
       case "user":
         return this.eventSource.userId;
@@ -176,19 +186,15 @@ export class Pc {
         return this.eventSource.groupId;
       case "room":
         return this.eventSource.roomId;
+      default:
+        throw "Pc no source type";
     }
   }
 
   getSourceUserId() {
-    switch (this.eventSource.type) {
-      case "user":
-        return this.eventSource.userId;
-      case "group":
-        return this.eventSource.userId;
-      case "room":
-        return this.eventSource.userId;
-    }
+    return this.eventSource.userId;
   }
+
   stop(){
     this.signal.stop = true;
   }

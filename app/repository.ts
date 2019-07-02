@@ -1,4 +1,4 @@
-import { client as $dbclient, config } from "./utilConfig";
+import { client as $dbclient, configLine } from "./utilConfig";
 import { Client, ClientConfig, Profile } from "@line/bot-sdk";
 import { Collection, MongoClient } from "mongodb";
 
@@ -20,7 +20,7 @@ export const plus = function(num: number) {
 // buat dua satu cache user aja satu cache query <- mengurangin connection overhead
 
 
-const client = new Client(<ClientConfig>config);
+const client = new Client(<ClientConfig>configLine);
 let dbClient: MongoClient | null = null;
 
 async function getDbClient() {

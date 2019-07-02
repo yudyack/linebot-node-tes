@@ -5,17 +5,17 @@ export const cacheMapPcs = new Map<EventSource["type"], Map<string, Pc[]>>();
 
 export function addpc(pc: Pc) {
   let sourceType = pc.eventSource.type;
-  let id = pc.getSourceOrgId();
+  let chatId = pc.getChatId();
   let idMap = cacheMapPcs.get(sourceType);
   if (!idMap) {
     let _idMap = new Map<string, Pc[]>();
-    _idMap.set(id, [pc]);
+    _idMap.set(chatId, [pc]);
     cacheMapPcs.set(sourceType, _idMap);
   } 
   else {
-    let pcs = idMap.get(id);
+    let pcs = idMap.get(chatId);
     if(!pcs) {
-      idMap.set(id, [pc])
+      idMap.set(chatId, [pc])
     } else {
       pcs.push(pc);
     }
@@ -65,7 +65,7 @@ function getPcsOrUndefined(pc: Pc): Pc[] | undefined{
   let idMap = cacheMapPcs.get(pc.eventSource.type);
   if (!idMap) return undefined;
 
-  let pcs = idMap.get(pc.getSourceOrgId());
+  let pcs = idMap.get(pc.getChatId());
   if (!pcs) return undefined;
 
   return pcs;

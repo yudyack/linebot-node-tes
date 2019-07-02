@@ -3,13 +3,13 @@ import {
   ClientConfig,
   AudioMessage,
 } from "@line/bot-sdk";
-import { config, hostname, client as $dbclient, range, textToSpeechClient, getIndVoices, fullHostname, rootPath } from "./utilConfig";
+import { configLine, hostname, client as $dbclient, textToSpeechClient, getIndVoices, fullHostname, rootPath } from "./utilConfig";
 import { promises, writeFile, write } from "fs";
 import { User as RepoUser } from "./repository";
 
 export const handle = chaining();
 
-const clientLine = new Client(<ClientConfig>config);
+const clientLine = new Client(<ClientConfig>configLine);
 const cache = {};
 import { Pc, processes } from "./pc";
 import { addpc, getLastIndexCachePc, getCachedPcsLength } from "./cacheChat";
@@ -22,6 +22,7 @@ import { Hash, createHash } from "crypto";
 import * as fs from "fs";
 import { decode } from "punycode";
 import { resolve } from "path";
+import { sessionManager } from "./stateBuild";
 
 
 const replyText = (token: string, texts: string | any[]) => {
@@ -133,7 +134,7 @@ async function spamLast(pc: Pc): Promise<Pc> {
     if(lastPc) {
       let text = lastPc.getMsgText();
       if (!text) return pc;
-      for (const i of Array(times).keys()) {
+      for (const {} of Array(times).keys()) {
         pc.addReplyMessage(text)
       }
     }
@@ -244,7 +245,21 @@ async function textToSpeech(pc:Pc) {
   return pc;
 }
 
+// state machine should be per topic
+async function goSession(pc:Pc) {
+  if (!pc.userId) {
+    console.log("user don't show user id, cant get into session")
+  } else{
+    sessionManager.getSessions(pc.chatId, pc.userId);
+  }
+  // if (pc.has_state == true) {
+  //   pc.stop()
+  // }
+  return pc;
+}
 
+
+// ------------------
 let counter = 0;
 export function chaining() : Function {
   return async function run(dto: any) {
@@ -293,6 +308,7 @@ processes.push(
   second,
   // getUser,
   testing,
+  goSession,
   spamLast,
   mintaId,
   textToSpeech,

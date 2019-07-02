@@ -25,7 +25,7 @@ import proxy          = require('express-http-proxy');
 import bodyParser     = require('body-parser');
 import path           = require('path');
 
-import { config, dataAll, hostname, setHostname, loadEnv, rootPath } from './utilConfig';
+import { configLine, dataAll, hostname, setHostname, loadEnv, rootPath } from './utilConfig';
 import { handle, chaining } from './mapEvent';
 import { userInfo } from 'os';
 import { closeDbClient } from './repository';
@@ -66,7 +66,7 @@ app.post('/fixedPush',bodyParser.json(), (req, res) => {
     res.status(403).send();
   
   // not yet refactorized
-  let client = new Client(<ClientConfig> config);
+  let client = new Client(<ClientConfig> configLine);
   let message: TextMessage = { 
     type: 'text',
     text: msg
@@ -103,7 +103,7 @@ app.post('/webhook-mock', [bodyParser.json(), onlyLocalSimple], (req: express.Re
   res.status(200).end()
 });
 
-app.post(webhook, middleware(<MiddlewareConfig> config), (req, res) => {
+app.post(webhook, middleware(<MiddlewareConfig> configLine), (req, res) => {
   
   let events: Array<WebhookEvent> = req.body.events // webhook event objects
   console.log(events);
