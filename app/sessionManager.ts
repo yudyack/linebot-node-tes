@@ -2,7 +2,7 @@ import { Pc } from "./pc";
 
 export interface SessionBase {
   readonly name: string;
-  act(pc: Pc): void;
+  act(pc: Pc): Pc;
 }
 
 class SessionManager<SessionAny extends SessionBase> {

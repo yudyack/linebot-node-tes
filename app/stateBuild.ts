@@ -1,3 +1,4 @@
+// TODO: need to add argument PC Ithink in Event
 export class StateMachine<S> {
   writer = new Writer<S>();
   current: S;

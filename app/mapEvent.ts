@@ -279,6 +279,7 @@ async function startHelloSession(pc:Pc) {
       helloSm.set(HState.mampus, () => {
         pc.addReplyMessage("mampus");
       }, (w) => {
+        w.goif("halo skripsi apa kabar", HState.mampus, {});
         w.goif("gila", HState.gila, {});
         w.goif("apadah", HState.apadah, {});
       })
@@ -301,15 +302,17 @@ async function startHelloSession(pc:Pc) {
 
       let helloSession = {
         name: "hello",
-        act: function(){
+        act: function(pc: Pc){
           let msg = pc.getMsgText() || "asdf";
           helloSm.go(msg).then((res) => {
+            console.log(res);
             if(res) sessionManager.deleteSession(pc.chatId, userId, "hello");
           });
-
+          return pc;
         }
       }
-      sessionManager.addSession(pc.chatId, pc.userId, helloSession)
+      sessionManager.addSession(pc.chatId, pc.userId, helloSession);
+      helloSession.act(pc);
     }
   }
   return pc;
@@ -361,10 +364,10 @@ export function chaining() : Function {
 
 processes.push(
   testHook,
-  first,
-  second,
+  // first,
+  // second,
   // getUser,
-  testing,
+  // testing,
   goSession,
   spamLast,
   mintaId,
