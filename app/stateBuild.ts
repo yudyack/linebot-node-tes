@@ -1,64 +1,12 @@
-import { Pc } from "./pc";
-
-interface Session {
-  readonly name: string;
-  act(chatId: string, userId: string, pc: Pc): void;
-}
-
-class SessionManager {
-  sessionMap: Map<string, Session[]>;
-  constructor() {
-    this.sessionMap = new Map<string, Session[]>(); 
-  }
-
-  addSession(chatId: string, userId: string, session: Session) {
-    let concat = this.ck(chatId, userId);
-    let sessions = this.sessionMap.get(concat);
-    if (!sessions) {
-      let sessions = [session];
-      this.sessionMap.set(concat, sessions);
-    } else {
-      sessions.push(session);
-    }
-  }
-
-  deleteSession(chatId: string, userId: string, sessionName: Session["name"]) {
-    let concat = this.ck(chatId,userId);
-    let sessions = this.sessionMap.get(concat);
-
-    if (!sessions) {}
-    else {
-      sessions = sessions.filter((val) => {
-        if (val.name != sessionName) {
-          return true;
-        } else {
-          return false;
-        }
-      })
-      this.sessionMap.set(concat, sessions);
-    }
-  }
-  
-  getSessions(chatId: string, userId: string): Session[] | undefined {
-    return this.sessionMap.get(this.ck(chatId, userId));
-  }
-
-  // concat chatId and userid for key
-  ck(chatId: string, userId: string): string {
-    return `${chatId}_${userId}`;
-  }
-}
-export const sessionManager = new SessionManager();
-
-
-
-class StateMachine<S> {
+export class StateMachine<S> {
   writer = new Writer<S>();
   current: S;
-  end: S;
-  constructor(start:S, end:S){
+  end: S[];
+  other: S;
+  constructor(start:S, end:S[], other: S){
     this.current = start;
     this.end = end;
+    this.other = other;
   }
   set(inState: S, stateEvent: () => void, write: (w:Writer<S>) => void) {
     this.writer.inState = inState;
@@ -67,7 +15,7 @@ class StateMachine<S> {
     this.writer.inState = undefined;
   }
 
-  act(input: string): Promise<boolean> {
+  go(input: string): Promise<boolean> {
 
     let event = this.getEvent(this.current);
     if(event) {
@@ -79,9 +27,11 @@ class StateMachine<S> {
     
     if(nextState !== undefined) {
       this.current = nextState;
+    } else {
+      this.current = this.other;
     }
 
-    if(this.current == this.end) {
+    if(this.isThisEnd(this.current)) {
       return Promise.resolve(true);
     }
     return Promise.resolve(false);
@@ -108,12 +58,16 @@ class StateMachine<S> {
     return this.current;
   }
 
+  isThisEnd(theState: S) {
+    return this.end.includes(theState)
+  }
+
   /**
    * clone writer and StateMachine but reference same maps and state
    */
   clone() {
     let _writer = new Writer<S>();
-    let _sm = new StateMachine<S>(this.current, this.end);
+    let _sm = new StateMachine<S>(this.current, this.end, this.other);
 
     _writer.inputStateToStateMap = this.writer.inputStateToStateMap;
     _writer.stateEventMap = this.writer.stateEventMap;
@@ -151,7 +105,7 @@ enum Inputs {
   two = "two"
 }
 
-let sm = new StateMachine<States>(States.One,States.Three);
+let sm = new StateMachine<States>(States.One, [States.Three], States.One);
 sm.set(States.One, () => {
   console.log("in state one")
 }, (w) => {
@@ -172,12 +126,14 @@ sm.set(States.Three, () => {
 })
 let sm1 = sm.clone();
 
-sm.act("1");
-sm.act("2");
+sm.go("1");
+sm.go("1");
+sm.go("2");
+console.log(sm.current);
 
 console.log(sm1);
-sm1.act("something not on the list");
-sm1.act("done");
+sm1.go("something not on the list");
+sm1.go("done");
 
 
 ////////////////////////////////

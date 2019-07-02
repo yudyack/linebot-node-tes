@@ -22,7 +22,8 @@ import { Hash, createHash } from "crypto";
 import * as fs from "fs";
 import { decode } from "punycode";
 import { resolve } from "path";
-import { sessionManager } from "./stateBuild";
+import { sessionManager, SessionBase } from "./sessionManager";
+import { StateMachine } from "./stateBuild";
 
 
 const replyText = (token: string, texts: string | any[]) => {
@@ -248,13 +249,69 @@ async function textToSpeech(pc:Pc) {
 // state machine should be per topic
 async function goSession(pc:Pc) {
   if (!pc.userId) {
-    console.log("user don't show user id, cant get into session")
-  } else{
-    sessionManager.getSessions(pc.chatId, pc.userId);
+    console.log("user don't show user id, cant get the session")
+  } else {
+    let session = sessionManager.getSession(pc.chatId, pc.userId);
+    if(session) {
+      session.act(pc);
+      pc.stop();
+    } 
   }
-  // if (pc.has_state == true) {
-  //   pc.stop()
-  // }
+  return pc;
+}
+
+async function startHelloSession(pc:Pc) {
+  let matchesText = pc.getMatchesTextLowerCase(/^halo skripsi apa kabar$/g);
+  if (matchesText.length > 0) {
+    if (!pc.userId) {
+      console.log("user don't show user id, cant start session")
+    } else {
+      let userId = pc.userId;
+      // assume the user doesn't have the session because if they have, in go session all other message processors would be skipped
+      enum HState {
+        mampus,
+        gila,
+        apadah,
+        oke,
+        exit
+      }
+      let helloSm = new StateMachine<HState>(HState.mampus, [HState.exit], HState.exit);
+      helloSm.set(HState.mampus, () => {
+        pc.addReplyMessage("mampus");
+      }, (w) => {
+        w.goif("gila", HState.gila, {});
+        w.goif("apadah", HState.apadah, {});
+      })
+      helloSm.set(HState.gila, () => {
+        pc.addReplyMessage("hehe ampun kaka");
+      }, (w) => {
+        w.goif("yaudh", HState.oke, {});
+        w.goif("gada", HState.apadah, {});
+      })
+      helloSm.set(HState.apadah, () => {
+        pc.addReplyMessage("apadah");
+      }, (w) => {
+        w.goif("apadah", HState.oke, {});
+      })
+      helloSm.set(HState.oke, () => {
+        pc.addReplyMessage("oke");
+      }, (w) => {
+      })
+
+
+      let helloSession = {
+        name: "hello",
+        act: function(){
+          let msg = pc.getMsgText() || "asdf";
+          helloSm.go(msg).then((res) => {
+            if(res) sessionManager.deleteSession(pc.chatId, userId, "hello");
+          });
+
+        }
+      }
+      sessionManager.addSession(pc.chatId, pc.userId, helloSession)
+    }
+  }
   return pc;
 }
 
@@ -312,7 +369,12 @@ processes.push(
   spamLast,
   mintaId,
   textToSpeech,
+  startHelloSession
 );
 
 console.log(processes);
 
+
+let arr = [1,2,3,4,5];
+console.log(arr.slice(0));
+console.log(arr.slice(1));
