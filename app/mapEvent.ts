@@ -267,7 +267,7 @@ async function startHelloSession(pc:Pc) {
       console.log("user don't show user id, cant start session")
     } else {
       let userId = pc.userId;
-      // assume the user doesn't have the session because if they have, in go session all other message processors would be skipped
+      // assume the user doesn't have the session because if they have, in goSession all other message processors would be skipped
       enum HState {
         start,
         mampus,
@@ -302,7 +302,7 @@ async function startHelloSession(pc:Pc) {
         pc.addReplyMessage("apadah");
         return pc
       }, (w) => {
-        w.goif("apadah", HState.oke);
+        w.goif("apadah", HState.apadah);
         w.elsego(HState.gila)
       })
       helloSm.set(HState.oke, (pc) => {
