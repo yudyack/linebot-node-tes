@@ -1,42 +1,55 @@
 // TODO: need to add argument PC Ithink in Event
-export class StateMachine<S> {
-  writer = new Writer<S>();
+
+interface stateEventFn<T> {
+  (dto:T): T
+}
+
+interface StateMachineResult<T> {
+  result: boolean,
+  dto: T
+}
+
+export class StateMachine<S, Dto> {
+  writer = new Writer<S, Dto>();
   current: S;
   end: S[];
-  other: S;
-  constructor(start:S, end:S[], other: S){
+  leftover: S;
+  constructor(start:S, end:S[], leftover: S){
     this.current = start;
     this.end = end;
-    this.other = other;
+    this.leftover = leftover;
   }
-  set(inState: S, stateEvent: () => void, write: (w:Writer<S>) => void) {
+  set(inState: S, stateEvent: stateEventFn<Dto>, write: (w:Writer<S, Dto>) => void) {
     this.writer.inState = inState;
     write(this.writer);
     this.writer.stateEventMap.set(this.writer.inState, stateEvent);
     this.writer.inState = undefined;
   }
 
-  go(input: string): Promise<boolean> {
+  go(input: string, dto: Dto): Promise<StateMachineResult<Dto>> {
+
+    let nextState = this.getNext(input);
+    if(nextState !== undefined) {
+      this.current = nextState;
+    }
 
     let event = this.getEvent(this.current);
     if(event) {
-      event();
+      dto = event(dto);
     } else {
       console.log("no state found")
     }
-    let nextState = this.getNext(input);
     
-    // need fix this for each state?
-    if(nextState !== undefined) {
-      this.current = nextState;
-    } else {
-      this.current = this.other;
-    }
-
     if(this.isThisEnd(this.current)) {
-      return Promise.resolve(true);
+      return Promise.resolve({
+        result: true,
+        dto: dto
+      });
     }
-    return Promise.resolve(false);
+    return Promise.resolve({
+      result: false,
+      dto: dto
+    });
   }
 
   getEvent(state: S) {
@@ -49,10 +62,21 @@ export class StateMachine<S> {
     } else {
       let _state = _map.get(input);
       if(_state === undefined) {
-        console.log("no input found")
+        console.log("no input found");
+        console.log("get the else state");
+        return this.getElseState(this.current);
       } else {
         return _state
       }
+    }
+  }
+
+  getElseState(inState: S): S {
+    const elseState = this.writer.elseMap.get(inState);
+    if (elseState === undefined) {
+      return this.leftover;
+    } else {
+      return elseState;
     }
   }
 
@@ -68,23 +92,25 @@ export class StateMachine<S> {
    * clone writer and StateMachine but reference same maps and state
    */
   clone() {
-    let _writer = new Writer<S>();
-    let _sm = new StateMachine<S>(this.current, this.end, this.other);
+    let _writer = new Writer<S, Dto>();
+    let _sm = new StateMachine<S, Dto>(this.current, this.end, this.leftover);
 
     _writer.inputStateToStateMap = this.writer.inputStateToStateMap;
     _writer.stateEventMap = this.writer.stateEventMap;
+    _writer.elseMap = this.writer.elseMap;
     _sm.writer = _writer;
 
     return _sm;
   }
 }
 
-class Writer<S> {
+class Writer<S, Dto> {
   // inputCallbackMap = new Map<S, Map<string, any>>();
   inputStateToStateMap = new Map<S, Map<string, S>>();
-  stateEventMap = new Map<S, () => void >();
+  stateEventMap = new Map<S, stateEventFn<Dto> >();
+  elseMap = new Map<S, S>();
   inState?: S;
-  goif(input: string, to: S, callback: any) {
+  goif(input: string, to: S, callback?: any) {
     if(this.inState === undefined) throw "state haven't set yet"
     let stringStateMap = this.inputStateToStateMap.get(this.inState);
     if (stringStateMap) {
@@ -94,6 +120,11 @@ class Writer<S> {
       _inputStateMap.set(input, to);
       this.inputStateToStateMap.set(this.inState, _inputStateMap);
     }
+  }
+
+  elsego(to: S, callback?: any) {
+    if (this.inState === undefined) throw "state haven't set yet";
+    this.elseMap.set(this.inState, to);
   }
 }
 
@@ -107,24 +138,24 @@ enum Inputs {
   two = "two"
 }
 
-let sm = new StateMachine<States>(States.One, [States.Three], States.One);
+let sm = new StateMachine<States, void>(States.One, [States.Three], States.One);
 sm.set(States.One, () => {
   console.log("in state one")
 }, (w) => {
-  w.goif("1", States.Two, () => { })
-  w.goif("something not on the list", States.Three, { });
+  w.goif("1", States.Two)
+  w.goif("something not on the list", States.Three);
 })
 
 sm.set(States.Two, () => {
   console.log("in state two")
 }, (w) => {
-  w.goif("2", States.Three, () => { })
+  w.goif("2", States.Three)
 })
 
 sm.set(States.Three, () => {
   console.log("in state three")
 }, (w) => {
-  w.goif("1", States.One, () => {})
+  w.goif("1", States.One)
 })
 let sm1 = sm.clone();
 

@@ -269,50 +269,65 @@ async function startHelloSession(pc:Pc) {
       let userId = pc.userId;
       // assume the user doesn't have the session because if they have, in go session all other message processors would be skipped
       enum HState {
+        start,
         mampus,
         gila,
         apadah,
         oke,
         exit
       }
-      let helloSm = new StateMachine<HState>(HState.mampus, [HState.exit], HState.exit);
-      helloSm.set(HState.mampus, () => {
+      let helloSm = new StateMachine<HState, Pc>(HState.start, [HState.exit, HState.oke], HState.exit);
+      helloSm.set(HState.start, (pc) => {
+        // start state won't be activated because only acctivate the next state
+        return pc;
+      }, (w) => {
+        w.goif(matchesText[0], HState.mampus);
+      }) 
+      helloSm.set(HState.mampus, (pc) => {
         pc.addReplyMessage("mampus");
+        return pc
       }, (w) => {
-        w.goif("halo skripsi apa kabar", HState.mampus, {});
-        w.goif("gila", HState.gila, {});
-        w.goif("apadah", HState.apadah, {});
+        // w.goif("halo skripsi apa kabar", HState.mampus, {});
+        w.goif("gila", HState.gila);
+        w.goif("apadah", HState.apadah);
       })
-      helloSm.set(HState.gila, () => {
+      helloSm.set(HState.gila, (pc) => {
         pc.addReplyMessage("hehe ampun kaka");
+        return pc
       }, (w) => {
-        w.goif("yaudh", HState.oke, {});
-        w.goif("gada", HState.apadah, {});
+        w.goif("yaudh", HState.exit);
+        w.goif("gada", HState.apadah);
       })
-      helloSm.set(HState.apadah, () => {
+      helloSm.set(HState.apadah, (pc) => {
         pc.addReplyMessage("apadah");
+        return pc
       }, (w) => {
-        w.goif("apadah", HState.oke, {});
+        w.goif("apadah", HState.oke);
+        w.elsego(HState.gila)
       })
-      helloSm.set(HState.oke, () => {
+      helloSm.set(HState.oke, (pc) => {
         pc.addReplyMessage("oke");
-      }, (w) => {
-      })
+        return pc
+      }, (w) => {})
+      helloSm.set(HState.exit, (pc) => {
+        pc.addReplyMessage("gue pergi bay");
+        return pc;
+      }, (w) => {})
 
 
       let helloSession = {
         name: "hello",
         act: function(pc: Pc){
           let msg = pc.getMsgText() || "asdf";
-          helloSm.go(msg).then((res) => {
+          helloSm.go(msg, pc).then((res) => {
             console.log(res);
-            if(res) sessionManager.deleteSession(pc.chatId, userId, "hello");
+            if(res.result) sessionManager.deleteSession(pc.chatId, userId, "hello");
           });
           return pc;
         }
       }
       sessionManager.addSession(pc.chatId, pc.userId, helloSession);
-      helloSession.act(pc);
+      pc = helloSession.act(pc);
     }
   }
   return pc;
