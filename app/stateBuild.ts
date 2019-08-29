@@ -27,7 +27,6 @@ export class StateMachine<S, Dto> {
   }
 
   go(input: string, dto: Dto): Promise<StateMachineResult<Dto>> {
-
     let nextState = this.getNext(input);
     if(nextState !== undefined) {
       this.current = nextState;

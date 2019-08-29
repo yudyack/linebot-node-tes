@@ -165,6 +165,11 @@ export class Pc {
     return text.match(re) || [];
   }
 
+  getMatchesTextMatchArray(re: RegExp) {
+    let text = this.getMsgText() || "";
+    return text.match(re);
+  }
+
   getMatchesTextLowerCase(re: RegExp): string[] {
     let text = this.getMsgText() || "";
     return text.toLowerCase().match(re) || [];

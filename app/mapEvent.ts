@@ -24,6 +24,7 @@ import { decode } from "punycode";
 import { resolve } from "path";
 import { sessionManager, SessionBase } from "./sessionManager";
 import { StateMachine } from "./stateBuild";
+import * as twitterCmd from "./twitterCommand";
 
 
 const replyText = (token: string, texts: string | any[]) => {
@@ -295,7 +296,7 @@ async function startHelloSession(pc:Pc) {
         pc.addReplyMessage("hehe ampun kaka");
         return pc
       }, (w) => {
-        w.goif("yaudh", HState.exit);
+        w.goif("yaudh", HState.oke);
         w.goif("gada", HState.apadah);
       })
       helloSm.set(HState.apadah, (pc) => {
@@ -319,7 +320,7 @@ async function startHelloSession(pc:Pc) {
         name: "hello",
         act: function(pc: Pc){
           let msg = pc.getMsgText() || "asdf";
-          helloSm.go(msg, pc).then((res) => {
+          helloSm.go(msg.toLowerCase(), pc).then((res) => {
             console.log(res);
             if(res.result) sessionManager.deleteSession(pc.chatId, userId, "hello");
           });
@@ -333,6 +334,32 @@ async function startHelloSession(pc:Pc) {
   return pc;
 }
 
+async function twitterAction(pc:Pc) {
+  let match = pc.getMatchesTextMatchArray(/^twcmd (?<cmd>\w*?)$/);
+  if(match) {
+    let cmd = match.groups? match.groups.cmd : null;
+    let found = cmd || "";
+    switch (found) {
+      case "start":
+        twitterCmd.start();
+        pc.addReplyMessage(`starting run twitter mining`)
+        break;
+      case "stop":
+        twitterCmd.stop();
+        pc.addReplyMessage(`stopping twitter mining`)
+        break;
+      case "count":
+        let count = twitterCmd.getCount();
+        pc.addReplyMessage(`collected ${count} twit`)
+        break;
+      default:
+        break;
+    }
+
+  }
+
+  return pc;
+}
 
 // ------------------
 let counter = 0;
@@ -387,12 +414,13 @@ processes.push(
   spamLast,
   mintaId,
   textToSpeech,
-  startHelloSession
+  startHelloSession,
+  twitterAction
 );
 
 console.log(processes);
 
 
-let arr = [1,2,3,4,5];
-console.log(arr.slice(0));
-console.log(arr.slice(1));
+// let arr = [1,2,3,4,5];
+// console.log(arr.slice(0));
+// console.log(arr.slice(1));

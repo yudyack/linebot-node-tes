@@ -20,14 +20,56 @@ export const configLine: Config = {
   channelSecret: <string> process.env.CHANNEL_SECRET
 }
 
+
+let mongoDbClientMap = new Map<string, MongoClient>();
 // config client mongodb
-export const client = () : Promise<MongoClient> => {
+export const client = async () : Promise<MongoClient> => {
+  let mongoDbClient = mongoDbClientMap.get("default");
+  if (mongoDbClient) {
+    return mongoDbClient;
+  }
+  else
   console.log(process.env.CONNECTIONDB)
   return mongo.connect(process.env.CONNECTIONDB?
-    process.env.CONNECTIONDB : "", { useNewUrlParser: true })
+    process.env.CONNECTIONDB : "", { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(mongoDbClient => {
+    mongoDbClientMap.set("default", mongoDbClient);
+    return mongoDbClient;
+  })
   .catch((err)=>{
     console.log('error database connection');
     throw err;
+  })
+}
+
+export const GetTwitterDbClient = async () => {
+  let twitterDbClient = mongoDbClientMap.get("twitter");
+  if (twitterDbClient) {
+    return twitterDbClient;
+  }
+  else {
+    return await mongo.connect(process.env.TWITTERCONNECTIONDB || "", {useNewUrlParser: true, useUnifiedTopology: true })
+    .then((twitterDbClient) => {
+      mongoDbClientMap.set("twitter", twitterDbClient);
+      return twitterDbClient;
+    })
+    .catch((err) => {
+      console.log('error twitter database connection');
+      throw err;
+    })
+  }
+}
+
+export const closingAllMongoDb = () => {
+  let promises: Promise<void>[] = [];
+  mongoDbClientMap.forEach((value, key, map) => {
+    promises.push(value.close());
+  })
+  Promise.all(promises).then(()=> {
+    console.log("all db closed")
+  })
+  .catch((e)=>{
+    throw e
   })
 }
 

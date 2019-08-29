@@ -11,6 +11,7 @@ class SessionManager<SessionAny extends SessionBase> {
     this.sessionMap = new Map<string, SessionAny[]>(); 
   }
 
+  // must add duration and time
   addSession(chatId: string, userId: string, session: SessionAny) {
     let concat = this.ck(chatId, userId);
     let sessions = this.sessionMap.get(concat);
