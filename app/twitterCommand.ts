@@ -64,6 +64,7 @@ async function run() {
         if (added % 10 == 0) {
           console.log("refresh counter");
           counter = await tweets.countDocuments().catch(()=> {throw "fail count collection"});
+          added == 0;
         }
 
         if(stopFlag) {
