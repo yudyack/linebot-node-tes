@@ -40,7 +40,7 @@ async function run() {
   let indonesiaBox = "95.2930261576, -10.3599874813, 141.03385176, 5.47982086834";
   let data: Tweet[] = [];
   counter = await tweets.countDocuments().catch(()=> {throw "fail count collection"});
-  let added = 0;
+  added = 0;
 
   let twstream = T.stream("statuses/filter", <any> {
     // Name: "tweet",
@@ -55,6 +55,7 @@ async function run() {
         added += 1; 
         await tweets.insertOne(tweet);
         console.log(`${tweet.id} added, total: ${counter + added}`);
+        
 
         if(tweet.text.includes("anakindonesia")) {
           console.log(tweet);
@@ -80,8 +81,9 @@ export const stop = () => {
 }
 
 let counter = 0;
+let added = 0;
 export const getCount = () => {
-  return counter;
+  return counter + added;
 }
 
 let stopFlag = false;
