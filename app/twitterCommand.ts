@@ -27,6 +27,7 @@ let params: GeoParams  = {
 console.log(T.getAuth());
 
 async function run() {
+  instance_count += 1;
   let connection_string;
   if (!(connection_string = process.env.CONNECTIONDB)) throw "empty connectionDB";
 
@@ -52,8 +53,8 @@ async function run() {
 
       if(tweet.place && (<Tweet> tweet).place.country_code == "ID") {
         data.push(tweet);
-        added += 1; 
         await tweets.insertOne(tweet);
+        added += 1; 
         console.log(`${tweet.id} added, total: ${counter + added}`);
         
 
@@ -64,7 +65,7 @@ async function run() {
         if (added % 10 == 0) {
           console.log("refresh counter");
           counter = await tweets.countDocuments().catch(()=> {throw "fail count collection"});
-          added == 0;
+          added = 0;
         }
 
         if(stopFlag) {
@@ -76,10 +77,23 @@ async function run() {
 
 }
 
-
+let promise: Promise<void>;
+let instance_count = 0;
 export const start = () => {
   stopFlag = false;
-  run()
+  if (promise) {
+    stopFlag = true;
+    promise = promise.then(() => {
+      instance_count -= 1;
+      stopFlag = false;
+      return run();
+    })
+  } else {
+    promise = run();
+  }
+
+  console.log(`instance_count = ${instance_count}`);
+
 }
 
 export const stop = () => {
