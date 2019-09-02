@@ -36,7 +36,7 @@ async function run() {
   console.log("connected");
 
   let tweets: mongo.Collection<any>;
-  if (!(tweets = client.db("twitter").collection("tweet"))) throw "fail load tweet collection";
+  if (!(tweets = client.db("twitter").collection("tweet_unique"))) throw "fail load tweet collection";
   
   let indonesiaBox = "95.2930261576, -10.3599874813, 141.03385176, 5.47982086834";
   let data: Tweet[] = [];
