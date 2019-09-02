@@ -49,23 +49,29 @@ async function run() {
     locations: indonesiaBox
     // words: words 
   })
-    .on("tweet", async (tweet: Tweet) =>{
-
+    .on("tweet", async (tweet: Tweet) => {
       if(tweet.place && (<Tweet> tweet).place.country_code == "ID") {
-        data.push(tweet);
-        await tweets.insertOne(tweet);
-        added += 1; 
-        console.log(`${tweet.id} added, total: ${counter + added}`);
-        
-
+        // data.push(tweet);
         if(tweet.text.includes("anakindonesia")) {
           console.log(tweet);
         }
+        
+        try {
+          await tweets.insertOne(tweet);
+          added += 1; 
+          console.log(`${tweet.id_str} added, total: ${counter + added}`);
 
-        if (added % 10 == 0) {
-          console.log("refresh counter");
-          counter = await tweets.countDocuments().catch(()=> {throw "fail count collection"});
-          added = 0;
+          if (added % 10 == 0) {
+            console.log("refresh counter");
+            counter = await tweets.countDocuments()
+              .then((res) => {
+                added = 0;
+                return res;
+              })
+              .catch(()=> {throw "fail count collection"});
+          }
+        } catch {
+          console.log(`${tweet.id_str} is duplicate`);
         }
 
         if(stopFlag) {
@@ -82,12 +88,12 @@ let instance_count = 0;
 export const start = () => {
   stopFlag = false;
   if (promise) {
-    stopFlag = true;
     promise = promise.then(() => {
       instance_count -= 1;
       stopFlag = false;
       return run();
     })
+    stopFlag = true;
   } else {
     promise = run();
   }
