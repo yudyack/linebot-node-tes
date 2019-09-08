@@ -36,7 +36,7 @@ async function run() {
   console.log("connected");
 
   let tweets: mongo.Collection<any>;
-  if (!(tweets = client.db("twitter").collection("twit_text"))) throw "fail load tweet collection";
+  if (!(tweets = client.db("twitter").collection("tweet_text"))) throw "fail load tweet collection";
   
   let indonesiaBox = "95.2930261576, -10.3599874813, 141.03385176, 5.47982086834";
   let data: Tweet[] = [];
@@ -62,10 +62,10 @@ async function run() {
             text: tweet.text
           });
           added += 1; 
-          // console.log(`${tweet.id_str} added, total: ${counter + added}`);
+          console.log(`${tweet.id_str} added, total: ${counter + added}`);
 
           if (added % 10 == 0) {
-            // console.log("refresh counter");
+            console.log("refresh counter");
             counter = await tweets.countDocuments()
               .then((res) => {
                 added = 0;
