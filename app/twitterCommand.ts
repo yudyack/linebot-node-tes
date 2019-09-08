@@ -36,7 +36,7 @@ async function run() {
   console.log("connected");
 
   let tweets: mongo.Collection<any>;
-  if (!(tweets = client.db("twitter").collection("tweet_unique"))) throw "fail load tweet collection";
+  if (!(tweets = client.db("twitter").collection("twit_text"))) throw "fail load tweet collection";
   
   let indonesiaBox = "95.2930261576, -10.3599874813, 141.03385176, 5.47982086834";
   let data: Tweet[] = [];
@@ -53,16 +53,19 @@ async function run() {
       if(tweet.place && (<Tweet> tweet).place.country_code == "ID") {
         // data.push(tweet);
         if(tweet.text.includes("anakindonesia")) {
-          console.log(tweet);
+          // console.log(tweet);
         }
         
         try {
-          await tweets.insertOne(tweet);
+          await tweets.insertOne({
+            id_str: tweet.id_str,
+            text: tweet.text
+          });
           added += 1; 
-          console.log(`${tweet.id_str} added, total: ${counter + added}`);
+          // console.log(`${tweet.id_str} added, total: ${counter + added}`);
 
           if (added % 10 == 0) {
-            console.log("refresh counter");
+            // console.log("refresh counter");
             counter = await tweets.countDocuments()
               .then((res) => {
                 added = 0;
@@ -71,7 +74,7 @@ async function run() {
               .catch(()=> {throw "fail count collection"});
           }
         } catch {
-          console.log(`${tweet.id_str} is duplicate`);
+          console.log(`${tweet.id_str} is duplicate or error`);
         }
 
         if(stopFlag) {
