@@ -8,6 +8,8 @@ import { GeoData, GeoParams } from "./types/geoResult";
 import { Tweet } from "./types/tweet";
 import { GetTwitterDbClient } from "./utilConfig";
 import * as mongo from "mongodb";
+import rpn = require("request-promise-native");
+import cheerio = require("cheerio")
 
 // let config: Config
 let config: Twit.Options = {
@@ -25,6 +27,32 @@ let params: GeoParams  = {
 }
 // T.setAuth(T.getAuth());
 console.log(T.getAuth());
+
+
+async function getLongTwitter(truncatedTweet: string): Promise<string|null>{
+  let result = "";
+  
+  let match = truncatedTweet.match(/[\s\S]*… (?<link>[\s\S]*?)$/)
+  let link = match ? 
+    match.groups ?
+      match.groups.link ?
+        match.groups.link
+        : null
+      : null
+    : null;
+
+  if (link){
+    let res = await rpn.get(link)
+    let query = cheerio.load(res, { decodeEntities: false })
+    let query_result = query(".tweet-text")
+      .contents()
+      .get(0);
+    let longTweet = query_result.nodeValue;
+    return longTweet;
+  } else {
+    return truncatedTweet;
+  }
+}
 
 async function run() {
   instance_count += 1;
@@ -55,11 +83,15 @@ async function run() {
         if(tweet.text.includes("anakindonesia")) {
           // console.log(tweet);
         }
-        
+        //TODO: check truncated if true go to link and get de full sstring
+        let tweetText = tweet.text
+        if (tweet.truncated) {
+          let tweetText = await getLongTwitter(tweet.text);
+        } 
         try {
           await tweets.insertOne({
             id_str: tweet.id_str,
-            text: tweet.text
+            text: tweetText
           });
           added += 1; 
           console.log(`${tweet.id_str} added, total: ${counter + added}`);
