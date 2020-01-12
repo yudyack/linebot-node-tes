@@ -86,15 +86,12 @@ async function run() {
         try {
           let tweetText = tweet.text || "";
           tweetText = await getLongTwitter(tweet.text, tweet.truncated);
-          console.log(tweetText);
           await tweets.insertOne({
             id_str: tweet.id_str,
             text: tweetText
           });
           added += 1; 
-          console.log(`${tweet.id_str} added, total: ${counter + added}
-          twit:${tweetText}
-          `);
+          console.log(`${tweet.id_str} added, total: ${counter + added}`);
 
           if (added % 10 == 0) {
             console.log("refresh counter");
