@@ -37,21 +37,20 @@ async function getLongTwitter(truncatedTweet: string): Promise<string|null>{
     match.groups ?
       match.groups.link ?
         match.groups.link
-        : null
-      : null
-    : null;
+        : ""
+      : ""
+    : "";
 
-  if (link){
-    let res = await rpn.get(link)
-    let query = cheerio.load(res, { decodeEntities: false })
-    let query_result = query(".tweet-text")
-      .contents()
-      .get(0);
-    let longTweet = query_result.nodeValue;
-    return longTweet;
-  } else {
-    return truncatedTweet;
-  }
+  let res = await rpn.get(link).catch(()=>{
+    console.log(`gagal mengambil twit asli ${link}`)
+    return truncatedTweet
+  });
+  let query = cheerio.load(res, { decodeEntities: false })
+  let query_result = query(".tweet-text")
+    .contents()
+    .get(0);
+  let longTweet = query_result.nodeValue;
+  return longTweet;
 }
 
 async function run() {
@@ -85,8 +84,9 @@ async function run() {
         }
         //TODO: check truncated if true go to link and get de full sstring
         let tweetText = tweet.text
-        if (tweet.truncated) {
-          let tweetText = await getLongTwitter(tweet.text);
+      if (tweet.truncated) {
+        let tweetText = await getLongTwitter(tweet.text);
+          console.log(tweetText);
         } 
         try {
           await tweets.insertOne({
