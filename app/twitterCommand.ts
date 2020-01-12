@@ -84,7 +84,7 @@ async function run() {
         }
         //TODO: check truncated if true go to link and get de full sstring
         try {
-          let tweetText = tweet.text ?? "";
+          let tweetText = tweet.text || "";
           tweetText = await getLongTwitter(tweet.text, tweet.truncated);
           console.log(tweetText);
           await tweets.insertOne({
