@@ -1,7 +1,7 @@
 "use strict";
 exports.__esModule = true;
 var a = [];
-a[0] = '*Emak gw* \
+a[0] = '*Emak gw trigger* \
 Pas belom nikah : \"anak cewe jangan pulang malem2\" \
 Pas udah nikah : \"lagi hamil, jgn pulang malem2\" \
 Pas p… https://t.co/F23eXxO0Ty';
