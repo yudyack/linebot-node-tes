@@ -45,7 +45,7 @@
     "timezone-support": "^1.8.1",
     "ts-node-dev": "^1.0.0-pre.39",
     "twit": "^2.2.11",
-    "typescript": "^3.6.3",
+    "typescript": "^3.7.4",
     "vue": "^2.6.10",
     "web-audio-api": "^0.2.2"
   },

@@ -29,10 +29,10 @@ let params: GeoParams  = {
 console.log(T.getAuth());
 
 
-async function getLongTwitter(truncatedTweet: string): Promise<string|null>{
+async function getLongTwitter(twit_text: string, isTruncated: boolean): Promise<string>{
   let result = "";
-  
-  let match = truncatedTweet.match(/[\s\S]*… (?<link>[\s\S]*?)$/)
+  if (!isTruncated) return twit_text;
+  let match = twit_text.match(/[\s\S]*… (?<link>[\s\S]*?)$/)
   let link = match ? 
     match.groups ?
       match.groups.link ?
@@ -43,7 +43,7 @@ async function getLongTwitter(truncatedTweet: string): Promise<string|null>{
 
   let res = await rpn.get(link).catch(()=>{
     console.log(`gagal mengambil twit asli ${link}`)
-    return truncatedTweet
+    return twit_text
   });
   let query = cheerio.load(res, { decodeEntities: false })
   let query_result = query(".tweet-text")
@@ -83,18 +83,18 @@ async function run() {
           // console.log(tweet);
         }
         //TODO: check truncated if true go to link and get de full sstring
-        let tweetText = tweet.text
-      if (tweet.truncated) {
-        let tweetText = await getLongTwitter(tweet.text);
-          console.log(tweetText);
-        } 
         try {
+          let tweetText = tweet.text ?? "";
+          tweetText = await getLongTwitter(tweet.text, tweet.truncated);
+          console.log(tweetText);
           await tweets.insertOne({
             id_str: tweet.id_str,
             text: tweetText
           });
           added += 1; 
-          console.log(`${tweet.id_str} added, total: ${counter + added}`);
+          console.log(`${tweet.id_str} added, total: ${counter + added}
+          twit:${tweetText}
+          `);
 
           if (added % 10 == 0) {
             console.log("refresh counter");
